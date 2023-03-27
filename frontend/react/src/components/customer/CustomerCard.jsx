@@ -46,9 +46,7 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
                 <Flex justify={'center'} mt={-12}>
                     <Avatar
                         size={'xl'}
-                        src={
-                            customerProfilePictureUrl(id)
-                        }
+                        src={customerProfilePictureUrl(id)}
                         alt={'Author'}
                         css={{
                             border: '2px solid white',
