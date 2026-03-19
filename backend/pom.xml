@@ -18,7 +18,7 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <docker.username>jackypao103098</docker.username>
+        <docker.username>jackypao</docker.username>
         <docker.image.name>amigoscode-api</docker.image.name>
         <docker.image.tag/>
     </properties>
