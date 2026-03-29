@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "jackypao/amigoscode-api:04.01.2023.01.13.30",
+    "Name": "jackypao/amigoscode-api:27.03.2026.09.01.22",
     "Update": "true"
   },
   "Ports": [
