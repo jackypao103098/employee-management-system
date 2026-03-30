@@ -9,9 +9,9 @@ cors:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5332/customer
-    username: amigoscode
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5332/customer}
+    username: ${SPRING_DATASOURCE_USERNAME:amigoscode}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
   jpa:
     hibernate:
       ddl-auto: validate
