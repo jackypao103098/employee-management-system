@@ -5,7 +5,7 @@
     "Key": "dockercfg"
   },
   "Image": {
-    "Name": "jackypao/amigoscode-react:latest",
+    "Name": "jackypao/amigoscode-react:31.03.2026.07.47.32",
     "Update": "true"
   },
   "Ports": [
