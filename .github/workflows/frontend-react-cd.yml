@@ -46,7 +46,7 @@ jobs:
           tags: |
             jackypao/amigoscode-react:${{ steps.build-number.outputs.BUILD_NUMBER }}
             jackypao/amigoscode-react:latest
-          build-args: api_base_url=http://${{ secrets.EB_API_URL }}:8080
+          build-args: api_base_url=http://${{ secrets.EB_API_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Send Slack Message
