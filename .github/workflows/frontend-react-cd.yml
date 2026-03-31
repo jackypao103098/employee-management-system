@@ -20,12 +20,12 @@ jobs:
       - name: Slack commit message and sha
         run: >
           curl -X POST -H 'Content-type: application/json'
-          --data '{"text":":github: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} - ${{ github.event.head_commit.message }}"}' 
+          --data '{"text":":github: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} - ${{ github.event.head_commit.message }}"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Send Slack Message
         run: >
           curl -X POST -H 'Content-type: application/json'
-          --data '{"text":"Deployment started :progress_bar: :fingerscrossed:"}' 
+          --data '{"text":"Deployment started :progress_bar: :fingerscrossed:"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Set build number
         id: build-number
@@ -42,23 +42,27 @@ jobs:
           REPO=amigoscode-react \
           TAG=${{ steps.build-number.outputs.BUILD_NUMBER }} \
           ../../.ci/build-publish.sh . \
-            --build-arg api_base_url=http://amigoscodeapi-env.eba-ymxutmev.eu-west-1.elasticbeanstalk.com:8080
+            --build-arg api_base_url=http://${{ secrets.EB_ENV_URL }}:8080
       - name: Send Slack Message
         run: >
-          curl -X POST -H 'Content-type: application/json' 
+          curl -X POST -H 'Content-type: application/json'
           --data '{"text":":docker: Image tag:${{steps.build-number.outputs.BUILD_NUMBER}} pushed to https://hub.docker.com/repository/docker/jackypao/amigoscode-react"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
-      - name: Update Dockerrun.aws.json react image tag with new build number
+      - name: Update docker-compose-eb.yml react image tag with new build number
         run: |
-          echo "Dockerrun.aws.json before updating tag"
-          cat ../../Dockerrun.aws.json
-          sed -i -E 's_(jackypao/amigoscode-react:)([^"]*)_\1'${{steps.build-number.outputs.BUILD_NUMBER}}'_' ../../Dockerrun.aws.json
-          echo "Dockerrun.aws.json after updating tag"
-          cat ../../Dockerrun.aws.json
+          echo "docker-compose-eb.yml before updating tag"
+          cat ../../docker-compose-eb.yml
+          sed -i -E 's_(jackypao/amigoscode-react:)([^"]*)_\1'${{steps.build-number.outputs.BUILD_NUMBER}}'_' ../../docker-compose-eb.yml
+          echo "docker-compose-eb.yml after updating tag"
+          cat ../../docker-compose-eb.yml
+      - name: Create deployment zip
+        run: |
+          cp ../../docker-compose-eb.yml /tmp/docker-compose.yml
+          cd /tmp && zip deploy.zip docker-compose.yml
       - name: Send Slack Message
         run: >
-          curl -X POST -H 'Content-type: application/json' 
-          --data '{"text":":aws: Starting deployment to Elastic Beanstalk"}' 
+          curl -X POST -H 'Content-type: application/json'
+          --data '{"text":":aws: Starting deployment to Elastic Beanstalk"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
@@ -70,28 +74,28 @@ jobs:
           version_label: ${{ steps.build-number.outputs.BUILD_NUMBER }}
           version_description: ${{ github.SHA }}
           region: ${{ secrets.EB_REGION }}
-          deployment_package: Dockerrun.aws.json
+          deployment_package: /tmp/deploy.zip
           wait_for_environment_recovery: 60
       - name: Send Slack Message
         run: >
-          curl -X POST -H 'Content-type: application/json' 
+          curl -X POST -H 'Content-type: application/json'
           --data '{"text":":githubloading: Committing to repo https://github.com/jackypao103098/spring-boot-fullstack-jacky/"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
-      - name: Commit and push Dockerrun.aws.json
+      - name: Commit and push docker-compose-eb.yml
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add ../../Dockerrun.aws.json
-          git commit -m "Update Dockerrun.aws.json docker image with new tag ${{ steps.build-number.outputs.BUILD_NUMBER }}"
+          git add ../../docker-compose-eb.yml
+          git commit -m "Update docker-compose-eb.yml react image tag ${{ steps.build-number.outputs.BUILD_NUMBER }}"
           git push
       - name: Send Slack Message
         run: >
-          curl -X POST -H 'Content-type: application/json' 
+          curl -X POST -H 'Content-type: application/json'
           --data '{"text":"Deployment and commit completed :github-check-mark: :party_blob:"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Send Slack Message
         if: always()
         run: >
-          curl -X POST -H 'Content-type: application/json' 
-          --data '{"text":"Job Status ${{ job.status }}"}' 
+          curl -X POST -H 'Content-type: application/json'
+          --data '{"text":"Job Status ${{ job.status }}"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}

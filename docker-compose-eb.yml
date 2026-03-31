@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  amigoscode-api:
+    image: jackypao/amigoscode-api:latest
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://amigoscode-tokyo-db.chmcss8kwi5t.ap-northeast-1.rds.amazonaws.com:5432/customer
+    ports:
+      - "8080:8080"
+  amigoscode-react:
+    image: jackypao/amigoscode-react:latest
+    ports:
+      - "80:5173"
+    depends_on:
+      - amigoscode-api
