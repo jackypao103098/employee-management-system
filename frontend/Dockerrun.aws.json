@@ -1,5 +1,9 @@
 {
   "AWSEBDockerrunVersion": "1",
+  "Authentication": {
+    "Bucket": "elasticbeanstalk-ap-northeast-1-998457202166",
+    "Key": "dockercfg"
+  },
   "Image": {
     "Name": "jackypao/amigoscode-react:latest",
     "Update": "true"

@@ -48,6 +48,15 @@ jobs:
           curl -X POST -H 'Content-type: application/json'
           --data '{"text":":docker: Image tag:${{steps.build-number.outputs.BUILD_NUMBER}} pushed to https://hub.docker.com/repository/docker/jackypao/amigoscode-react"}'
           ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Upload dockercfg to S3 for EB authentication
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.EB_REGION }}
+        run: |
+          AUTH=$(echo -n "${{ secrets.DOCKERHUB_USERNAME }}:${{ secrets.DOCKERHUB_ACCESS_TOKEN }}" | base64)
+          echo "{\"https://index.docker.io/v1/\":{\"auth\":\"${AUTH}\"}}" > /tmp/dockercfg
+          aws s3 cp /tmp/dockercfg s3://elasticbeanstalk-${{ secrets.EB_REGION }}-998457202166/dockercfg
       - name: Update Dockerrun.aws.json react image tag with new build number
         run: |
           echo "Dockerrun.aws.json before updating tag"
