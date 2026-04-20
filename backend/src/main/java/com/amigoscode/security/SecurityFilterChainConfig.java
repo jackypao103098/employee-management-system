@@ -36,6 +36,8 @@ public class SecurityFilterChainConfig {
                 .csrf().disable()
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.OPTIONS, "/**")
+                .permitAll()
                 .requestMatchers(
                         HttpMethod.POST,
                         "/api/v1/customers",
