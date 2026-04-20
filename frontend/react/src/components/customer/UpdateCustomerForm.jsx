@@ -1,38 +1,22 @@
 import {Form, Formik, useField} from 'formik';
 import * as Yup from 'yup';
-import {Alert, AlertIcon, Box, Button, FormLabel, Image, Input, Stack, VStack} from "@chakra-ui/react";
-import {customerProfilePictureUrl, updateCustomer, uploadCustomerProfilePicture} from "../../services/client.js";
-import {errorNotification, successNotification} from "../../services/notification.js";
-import {useCallback} from "react";
-import {useDropzone} from "react-dropzone";
 import {
     Alert,
     AlertIcon,
     Box,
     Button,
-    Center,
     FormLabel,
-    HStack,
     Image,
     Input,
-    Select,
     Stack,
     VStack
 } from "@chakra-ui/react";
-import {
-    saveCustomer,
-    updateCustomer,
-    uploadCustomerProfilePicture,
-    customerProfilePictureUrl,
-} from "../../services/client.js";
-import {successNotification, errorNotification} from "../../services/notification.js";
-import {useDropzone} from "react-dropzone";
+import {customerProfilePictureUrl, updateCustomer, uploadCustomerProfilePicture} from "../../services/client.js";
+import {errorNotification, successNotification} from "../../services/notification.js";
 import {useCallback} from "react";
+import {useDropzone} from "react-dropzone";
 
 const MyTextInput = ({label, ...props}) => {
-    // useField() returns [formik.getFieldProps(), formik.getFieldMeta()]
-    // which we can spread on <input>. We can use field meta to show an error
-    // message if the field is invalid and it has been touched (i.e. visited)
     const [field, meta] = useField(props);
     return (
         <Box>
@@ -47,41 +31,6 @@ const MyTextInput = ({label, ...props}) => {
         </Box>
     );
 };
-
-function MyDropzone({ customerId }) {
-    const onDrop = useCallback(acceptedFiles => {
-        // Do something with the files
-        const file = acceptedFiles[0];
-        const formData = new FormData();
-        formData.append("file", file);
-        uploadCustomerProfilePicture(customerId, formData).then(r => {
-            successNotification("Success", "Profile picture uploaded")
-        }).catch(e => {
-            errorNotification("Failed", "Profile picture failed upload")
-        })
-    }, [])
-
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
-
-    return (
-        <Box
-            w={'100%'}
-            textAlign={"center"}
-            border={'dashed'}
-            borderColor={'gray.200'}
-            p='6'
-            rounded='md'
-            borderRadius='3xl'
-            {...getRootProps()}>
-            <input {...getInputProps()} />
-            {
-                isDragActive ?
-                    <p>Drop the picture here ...</p> :
-                    <p>Drag 'n' drop picture here, or click to select picture</p>
-            }
-        </Box>
-    )
-}
 
 const MyDropzone = ({ customerId, fetchCustomers }) => {
     const onDrop = useCallback(acceptedFiles => {
@@ -119,19 +68,9 @@ const MyDropzone = ({ customerId, fetchCustomers }) => {
     )
 }
 
-// And now we can use these
 const UpdateCustomerForm = ({fetchCustomers, initialValues, customerId}) => {
     return (
         <>
-            <VStack spacing={5} mb={5}>
-                <Image
-                    borderRadius='full'
-                    boxSize='150px'
-                    objectFit={"cover"}
-                    src={customerProfilePictureUrl(customerId)}
-                />
-                <MyDropzone customerId={customerId}/>
-            </VStack>
             <VStack spacing={'5'} mb={'5'}>
                 <Image
                     borderRadius={'full'}
@@ -162,21 +101,19 @@ const UpdateCustomerForm = ({fetchCustomers, initialValues, customerId}) => {
                     setSubmitting(true);
                     updateCustomer(customerId, updatedCustomer)
                         .then(res => {
-                            console.log(res);
                             successNotification(
                                 "Customer updated",
                                 `${updatedCustomer.name} was successfully updated`
                             )
                             fetchCustomers();
                         }).catch(err => {
-                        console.log(err);
-                        errorNotification(
-                            err.code,
-                            err.response.data.message
-                        )
-                    }).finally(() => {
-                        setSubmitting(false);
-                    })
+                            errorNotification(
+                                err.code,
+                                err.response.data.message
+                            )
+                        }).finally(() => {
+                            setSubmitting(false);
+                        })
                 }}
             >
                 {({isValid, isSubmitting, dirty}) => (
@@ -188,21 +125,18 @@ const UpdateCustomerForm = ({fetchCustomers, initialValues, customerId}) => {
                                 type="text"
                                 placeholder="Jane"
                             />
-
                             <MyTextInput
                                 label="Email Address"
                                 name="email"
                                 type="email"
                                 placeholder="jane@formik.com"
                             />
-
                             <MyTextInput
                                 label="Age"
                                 name="age"
                                 type="number"
                                 placeholder="20"
                             />
-
                             <Button disabled={!(isValid && dirty) || isSubmitting} type="submit">Submit</Button>
                         </Stack>
                     </Form>
