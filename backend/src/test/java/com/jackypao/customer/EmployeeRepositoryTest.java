@@ -33,7 +33,7 @@ class EmployeeRepositoryTest extends AbstractTestcontainers {
     }
 
     @Test
-    void existsCustomerByEmail() {
+    void existsEmployeeByEmail() {
         // Given
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
         Employee employee = new Employee(
@@ -46,19 +46,19 @@ class EmployeeRepositoryTest extends AbstractTestcontainers {
         underTest.save(employee);
 
         // When
-        var actual = underTest.existsCustomerByEmail(email);
+        var actual = underTest.existsEmployeeByEmail(email);
 
         // Then
         assertThat(actual).isTrue();
     }
 
     @Test
-    void existsCustomerByEmailFailsWhenEmailNotPresent() {
+    void existsEmployeeByEmailFailsWhenEmailNotPresent() {
         // Given
         String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
 
         // When
-        var actual = underTest.existsCustomerByEmail(email);
+        var actual = underTest.existsEmployeeByEmail(email);
 
         // Then
         assertThat(actual).isFalse();

@@ -1,1 +1,1 @@
-ALTER TABLE customer RENAME TO employee;
+ALTER TABLE IF EXISTS customer RENAME TO employee;

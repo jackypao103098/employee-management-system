@@ -206,7 +206,7 @@ class EmployeeJDBCDataAccessServiceTest extends AbstractTestcontainers {
         update.setId(id);
         update.setName(newName);
 
-        underTest.updateCustomer(update);
+        underTest.updateEmployee(update);
 
         // Then
         Optional<Employee> actual = underTest.selectEmployeeById(id);
@@ -245,7 +245,7 @@ class EmployeeJDBCDataAccessServiceTest extends AbstractTestcontainers {
         update.setId(id);
         update.setEmail(newEmail);
 
-        underTest.updateCustomer(update);
+        underTest.updateEmployee(update);
 
         // Then
         Optional<Employee> actual = underTest.selectEmployeeById(id);
@@ -284,7 +284,7 @@ class EmployeeJDBCDataAccessServiceTest extends AbstractTestcontainers {
         update.setId(id);
         update.setAge(newAge);
 
-        underTest.updateCustomer(update);
+        underTest.updateEmployee(update);
 
         // Then
         Optional<Employee> actual = underTest.selectEmployeeById(id);
@@ -324,7 +324,7 @@ class EmployeeJDBCDataAccessServiceTest extends AbstractTestcontainers {
         update.setEmail(newEmail);
         update.setAge(22);
 
-        underTest.updateCustomer(update);
+        underTest.updateEmployee(update);
 
         // Then
         Optional<Employee> actual = underTest.selectEmployeeById(id);
@@ -361,7 +361,7 @@ class EmployeeJDBCDataAccessServiceTest extends AbstractTestcontainers {
         Employee update = new Employee();
         update.setId(id);
 
-        underTest.updateCustomer(update);
+        underTest.updateEmployee(update);
 
         // Then
         Optional<Employee> actual = underTest.selectEmployeeById(id);

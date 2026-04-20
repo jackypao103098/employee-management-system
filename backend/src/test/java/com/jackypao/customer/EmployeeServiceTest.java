@@ -60,7 +60,7 @@ class EmployeeServiceTest {
         EmployeeDTO expected = employeeDTOMapper.apply(employee);
 
         // When
-        EmployeeDTO actual = underTest.getCustomer(id);
+        EmployeeDTO actual = underTest.getEmployee(id);
 
         // Then
         assertThat(actual).isEqualTo(expected);
@@ -75,7 +75,7 @@ class EmployeeServiceTest {
 
         // When
         // Then
-        assertThatThrownBy(() -> underTest.getCustomer(id)).isInstanceOf(ResourceNotFoundException.class).hasMessage("employee with id [%s] not found".formatted(id));
+        assertThatThrownBy(() -> underTest.getEmployee(id)).isInstanceOf(ResourceNotFoundException.class).hasMessage("employee with id [%s] not found".formatted(id));
     }
 
     @Test
@@ -165,12 +165,12 @@ class EmployeeServiceTest {
         when(employeeDao.existsEmployeeWithEmail(newEmail)).thenReturn(false);
 
         // When
-        underTest.updateCustomer(id, updateRequest);
+        underTest.updateEmployee(id, updateRequest);
 
         // Then
         ArgumentCaptor<Employee> customerArgumentCaptor = ArgumentCaptor.forClass(Employee.class);
 
-        verify(employeeDao).updateCustomer(customerArgumentCaptor.capture());
+        verify(employeeDao).updateEmployee(customerArgumentCaptor.capture());
         Employee capturedCustomer = customerArgumentCaptor.getValue();
 
         assertThat(capturedCustomer.getName()).isEqualTo(updateRequest.name());
@@ -188,12 +188,12 @@ class EmployeeServiceTest {
         EmployeeUpdateRequest updateRequest = new EmployeeUpdateRequest("Alexandro", null, null);
 
         // When
-        underTest.updateCustomer(id, updateRequest);
+        underTest.updateEmployee(id, updateRequest);
 
         // Then
         ArgumentCaptor<Employee> customerArgumentCaptor = ArgumentCaptor.forClass(Employee.class);
 
-        verify(employeeDao).updateCustomer(customerArgumentCaptor.capture());
+        verify(employeeDao).updateEmployee(customerArgumentCaptor.capture());
         Employee capturedCustomer = customerArgumentCaptor.getValue();
 
         assertThat(capturedCustomer.getName()).isEqualTo(updateRequest.name());
@@ -215,12 +215,12 @@ class EmployeeServiceTest {
         when(employeeDao.existsEmployeeWithEmail(newEmail)).thenReturn(false);
 
         // When
-        underTest.updateCustomer(id, updateRequest);
+        underTest.updateEmployee(id, updateRequest);
 
         // Then
         ArgumentCaptor<Employee> customerArgumentCaptor = ArgumentCaptor.forClass(Employee.class);
 
-        verify(employeeDao).updateCustomer(customerArgumentCaptor.capture());
+        verify(employeeDao).updateEmployee(customerArgumentCaptor.capture());
         Employee capturedCustomer = customerArgumentCaptor.getValue();
 
         assertThat(capturedCustomer.getName()).isEqualTo(employee.getName());
@@ -238,12 +238,12 @@ class EmployeeServiceTest {
         EmployeeUpdateRequest updateRequest = new EmployeeUpdateRequest(null, null, 22);
 
         // When
-        underTest.updateCustomer(id, updateRequest);
+        underTest.updateEmployee(id, updateRequest);
 
         // Then
         ArgumentCaptor<Employee> customerArgumentCaptor = ArgumentCaptor.forClass(Employee.class);
 
-        verify(employeeDao).updateCustomer(customerArgumentCaptor.capture());
+        verify(employeeDao).updateEmployee(customerArgumentCaptor.capture());
         Employee capturedCustomer = customerArgumentCaptor.getValue();
 
         assertThat(capturedCustomer.getName()).isEqualTo(employee.getName());
@@ -265,10 +265,10 @@ class EmployeeServiceTest {
         when(employeeDao.existsEmployeeWithEmail(newEmail)).thenReturn(true);
 
         // When
-        assertThatThrownBy(() -> underTest.updateCustomer(id, updateRequest)).isInstanceOf(DuplicateResourceException.class).hasMessage("email already taken");
+        assertThatThrownBy(() -> underTest.updateEmployee(id, updateRequest)).isInstanceOf(DuplicateResourceException.class).hasMessage("email already taken");
 
         // Then
-        verify(employeeDao, never()).updateCustomer(any());
+        verify(employeeDao, never()).updateEmployee(any());
     }
 
     @Test
@@ -281,10 +281,10 @@ class EmployeeServiceTest {
         EmployeeUpdateRequest updateRequest = new EmployeeUpdateRequest(employee.getName(), employee.getEmail(), employee.getAge());
 
         // When
-        assertThatThrownBy(() -> underTest.updateCustomer(id, updateRequest)).isInstanceOf(RequestValidationException.class).hasMessage("no data changes found");
+        assertThatThrownBy(() -> underTest.updateEmployee(id, updateRequest)).isInstanceOf(RequestValidationException.class).hasMessage("no data changes found");
 
         // Then
-        verify(employeeDao, never()).updateCustomer(any());
+        verify(employeeDao, never()).updateEmployee(any());
     }
 
     @Test

@@ -84,7 +84,7 @@ class EmployeeJPADataAccessServiceTest {
         underTest.existsEmployeeWithEmail(email);
 
         // Then
-        verify(employeeRepository).existsCustomerByEmail(email);
+        verify(employeeRepository).existsEmployeeByEmail(email);
     }
 
     @Test
@@ -119,7 +119,7 @@ class EmployeeJPADataAccessServiceTest {
                 Gender.MALE);
 
         // When
-        underTest.updateCustomer(employee);
+        underTest.updateEmployee(employee);
 
         // Then
         verify(employeeRepository).save(employee);
