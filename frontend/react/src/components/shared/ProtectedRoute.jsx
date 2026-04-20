@@ -4,16 +4,16 @@ import {useAuth} from "../context/AuthContext.jsx";
 
 const ProtectedRoute = ({ children }) => {
 
-    const { isCustomerAuthenticated } = useAuth()
+    const { isEmployeeAuthenticated } = useAuth()
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!isCustomerAuthenticated()) {
+        if (!isEmployeeAuthenticated()) {
             navigate("/")
         }
     })
 
-    return isCustomerAuthenticated() ? children : "";
+    return isEmployeeAuthenticated() ? children : "";
 }
 
 export default ProtectedRoute;

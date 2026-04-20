@@ -4,27 +4,27 @@ import {
     useEffect,
     useState
 } from "react";
-import {getCustomers, login as performLogin} from "../../services/client.js";
+import {getEmployees, login as performLogin} from "../../services/client.js";
 import jwtDecode from "jwt-decode";
 
 const AuthContext = createContext({});
 
 const AuthProvider = ({ children }) => {
 
-    const [customer, setCustomer] = useState(null);
+    const [employee, setEmployee] = useState(null);
 
-    const setCustomerFromToken = () => {
+    const setEmployeeFromToken = () => {
         let token = localStorage.getItem("access_token");
         if (token) {
             token = jwtDecode(token);
-            setCustomer({
+            setEmployee({
                 username: token.sub,
                 roles: token.scopes
             })
         }
     }
     useEffect(() => {
-        setCustomerFromToken()
+        setEmployeeFromToken()
     }, [])
 
 
@@ -36,7 +36,7 @@ const AuthProvider = ({ children }) => {
 
                 const decodedToken = jwtDecode(jwtToken);
 
-                setCustomer({
+                setEmployee({
                     username: decodedToken.sub,
                     roles: decodedToken.scopes
                 })
@@ -49,10 +49,10 @@ const AuthProvider = ({ children }) => {
 
     const logOut = () => {
         localStorage.removeItem("access_token")
-        setCustomer(null)
+        setEmployee(null)
     }
 
-    const isCustomerAuthenticated = () => {
+    const isEmployeeAuthenticated = () => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             return false;
@@ -67,11 +67,11 @@ const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{
-            customer,
+            employee,
             login,
             logOut,
-            isCustomerAuthenticated,
-            setCustomerFromToken
+            isEmployeeAuthenticated,
+            setEmployeeFromToken
         }}>
             {children}
         </AuthContext.Provider>

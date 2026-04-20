@@ -6,10 +6,10 @@ const getAuthConfig = () => ({
     }
 })
 
-export const getCustomers = async () => {
+export const getEmployees = async () => {
     try {
         return await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/api/v1/customers`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/v1/employees`,
             getAuthConfig()
         )
     } catch (e) {
@@ -17,21 +17,21 @@ export const getCustomers = async () => {
     }
 }
 
-export const saveCustomer = async (customer) => {
+export const saveEmployee = async (employee) => {
     try {
         return await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/v1/customers`,
-            customer
+            `${import.meta.env.VITE_API_BASE_URL}/api/v1/employees`,
+            employee
         )
     } catch (e) {
         throw e;
     }
 }
 
-export const updateCustomer = async (id, update) => {
+export const updateEmployee = async (id, update) => {
     try {
         return await axios.put(
-            `${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${id}`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/v1/employees/${id}`,
             update,
             getAuthConfig()
         )
@@ -40,10 +40,10 @@ export const updateCustomer = async (id, update) => {
     }
 }
 
-export const deleteCustomer = async (id) => {
+export const deleteEmployee = async (id) => {
     try {
         return await axios.delete(
-            `${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${id}`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/v1/employees/${id}`,
             getAuthConfig()
         )
     } catch (e) {
@@ -62,10 +62,10 @@ export const login = async (usernameAndPassword) => {
     }
 }
 
-export const uploadCustomerProfilePicture = async (id, formData) => {
+export const uploadEmployeeProfilePicture = async (id, formData) => {
     try {
         return await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${id}/profile-image`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/v1/employees/${id}/profile-image`,
             formData,
             {
                 ...getAuthConfig(),
@@ -77,6 +77,6 @@ export const uploadCustomerProfilePicture = async (id, formData) => {
     }
 }
 
-export const customerProfilePictureUrl = id => {
-    return `${import.meta.env.VITE_API_BASE_URL}/api/v1/customers/${id}/profile-image`
+export const employeeProfilePictureUrl = id => {
+    return `${import.meta.env.VITE_API_BASE_URL}/api/v1/employees/${id}/profile-image`
 }

@@ -14,7 +14,7 @@ aws:
   s3:
     mock: true
     buckets:
-      customer: fs-amigoscode-customer-test
+      customer: fs-jackypao-employee-test
 
 management:
   endpoints:
@@ -24,8 +24,8 @@ management:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5332/customer}
-    username: ${SPRING_DATASOURCE_USERNAME:amigoscode}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5332/employee}
+    username: ${SPRING_DATASOURCE_USERNAME:jackypao}
     password: ${SPRING_DATASOURCE_PASSWORD:password}
   jpa:
     hibernate:

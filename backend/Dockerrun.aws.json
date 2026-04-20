@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "jackypao/amigoscode-api:20.04.2026.06.38.46",
+    "Name": "jackypao/employee-management-api:latest",
     "Update": "true"
   },
   "Ports": [

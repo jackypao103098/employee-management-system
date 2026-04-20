@@ -15,9 +15,9 @@ jobs:
       postgres:
         image: postgres:14.1
         env:
-          POSTGRES_USER: amigoscode
+          POSTGRES_USER: jackypao
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: customer
+          POSTGRES_DB: employee
         ports:
           - 5332:5432
         options:
@@ -48,7 +48,7 @@ jobs:
         run: mvn -ntp -B verify -Ddocker.image.tag=${{steps.build-number.outputs.BUILD_NUMBER}} -Djib.to.auth.username=${{ secrets.DOCKERHUB_USERNAME }} -Djib.to.auth.password=${{ secrets.DOCKERHUB_ACCESS_TOKEN }} -Djib.from.auth.username=${{ secrets.DOCKERHUB_USERNAME }} -Djib.from.auth.password=${{ secrets.DOCKERHUB_ACCESS_TOKEN }} jib:build
       - name: Update Dockerrun.aws.json api image tag with new build number
         run: |
-          sed -i -E 's_("Name": "jackypao/amigoscode-api:)([^"]*)_\1'${{steps.build-number.outputs.BUILD_NUMBER}}'_' ./Dockerrun.aws.json
+          sed -i -E 's_("Name": "jackypao/employee-management-api:)([^"]*)_\1'${{steps.build-number.outputs.BUILD_NUMBER}}'_' ./Dockerrun.aws.json
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
         with:

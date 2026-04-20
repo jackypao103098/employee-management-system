@@ -5,5 +5,5 @@ aws:
 spring:
   datasource:
     url: jdbc:postgresql://awseb-e-ezjnxfjb44-stack-awsebrdsdatabase-f2ocmocryc5g.celswdmxhcr1.eu-west-1.rds.amazonaws.com:5432/ebdb
-    username: amigoscode
+    username: jackypao
     password: password
