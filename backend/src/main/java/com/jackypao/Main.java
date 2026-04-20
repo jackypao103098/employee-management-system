@@ -50,22 +50,15 @@ public class Main {
     }
 
     private static void createRandomEmployee(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
-        var faker = new Faker();
-        Random random = new Random();
-        Name name = faker.name();
-        String firstName = name.firstName();
-        String lastName = name.lastName();
-        int age = random.nextInt(16, 99);
-        Gender gender = age % 2 == 0 ? Gender.MALE : Gender.FEMALE;
-        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@jackypao.com";
+        String demoEmail = "demo@jackypao.com";
+        if (employeeRepository.existsEmployeeByEmail(demoEmail)) return;
         Employee employee = new Employee(
-                firstName +  " " + lastName,
-                email,
+                "Demo User",
+                demoEmail,
                 passwordEncoder.encode("password"),
-                age,
-                gender);
+                30,
+                Gender.MALE);
         employeeRepository.save(employee);
-        System.out.println(email);
     }
 
 }

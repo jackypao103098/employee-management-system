@@ -3,6 +3,7 @@ import {
     AlertIcon,
     Box,
     Button,
+    Code,
     Flex,
     FormLabel,
     Heading,
@@ -114,6 +115,11 @@ const Login = () => {
                 <Stack spacing={4} w={'full'} maxW={'md'}>
                     <Heading fontSize={'2xl'} mb={15}>Employee Management System</Heading>
                     <Text color={'gray.500'} mb={5}>Sign in to manage your employees</Text>
+                    <Box bg={'green.50'} border={'1px'} borderColor={'green.200'} borderRadius={'md'} p={4}>
+                        <Text fontWeight={'bold'} color={'green.700'} mb={2}>Demo Account</Text>
+                        <Text fontSize={'sm'}>Email: <Code colorScheme='green'>demo@jackypao.com</Code></Text>
+                        <Text fontSize={'sm'}>Password: <Code colorScheme='green'>password</Code></Text>
+                    </Box>
                     <LoginForm/>
                     <Link color={"green.500"} href={"/signup"}>
                         Dont have an account? Signup now.
