@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "jackypao/employee-management-api:06.05.2026.09.10.00",
+    "Name": "jackypao/employee-management-api:06.05.2026.09.13.15",
     "Update": "true"
   },
   "Ports": [
