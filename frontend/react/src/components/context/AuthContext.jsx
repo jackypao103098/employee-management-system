@@ -16,11 +16,15 @@ const AuthProvider = ({ children }) => {
     const setEmployeeFromToken = () => {
         let token = localStorage.getItem("access_token");
         if (token) {
-            token = jwtDecode(token);
-            setEmployee({
-                username: token.sub,
-                roles: token.scopes
-            })
+            try {
+                token = jwtDecode(token);
+                setEmployee({
+                    username: token.sub,
+                    roles: token.scopes
+                })
+            } catch (e) {
+                localStorage.removeItem("access_token");
+            }
         }
     }
     useEffect(() => {
@@ -57,12 +61,17 @@ const AuthProvider = ({ children }) => {
         if (!token) {
             return false;
         }
-        const { exp: expiration } = jwtDecode(token);
-        if (Date.now() > expiration * 1000) {
-            logOut()
+        try {
+            const { exp: expiration } = jwtDecode(token);
+            if (Date.now() > expiration * 1000) {
+                logOut()
+                return false;
+            }
+            return true;
+        } catch (e) {
+            logOut();
             return false;
         }
-        return true;
     }
 
     return (
