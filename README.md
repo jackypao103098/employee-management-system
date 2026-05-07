@@ -4,6 +4,11 @@ A full-stack employee management system built with Spring Boot, React, and Postg
 
 > Built upon the [Amigoscode Spring Boot Fullstack course](https://www.amigoscode.com), extended with CI/CD pipelines, AWS cloud deployment, and production bug fixes.
 
+## Screenshots
+
+![Login Page](docs/login.png)
+![Dashboard](docs/dashboard.png)
+
 ## Tech Stack
 
 **Backend**
