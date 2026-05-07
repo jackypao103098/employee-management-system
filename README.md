@@ -2,6 +2,8 @@
 
 A full-stack employee management system built with Spring Boot, React, and PostgreSQL, deployed on AWS (Elastic Beanstalk + Amplify + S3 + CloudFront).
 
+> Built upon the [Amigoscode Spring Boot Fullstack course](https://www.amigoscode.com), extended with CI/CD pipelines, AWS cloud deployment, and production bug fixes.
+
 ## Tech Stack
 
 **Backend**
