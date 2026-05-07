@@ -75,7 +75,7 @@ jobs:
           if [ "${{ job.status }}" = "success" ]; then
             TEXT=":white_check_mark: Deployment succeeded"
           else
-            TEXT=":x: Deployment failed - https://github.com/jackypao103098/spring-boot-fullstack-jacky/actions/runs/${{ github.run_id }}"
+            TEXT=":x: Deployment failed - ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           fi
           curl -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"$TEXT\"}" \
