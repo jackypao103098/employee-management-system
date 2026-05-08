@@ -19,6 +19,6 @@ frontend:
     - source: /api/v1/<*>
       target: https://d16m8xa74z2ftt.cloudfront.net/api/v1/<*>
       status: '200'
-    - source: /<*>
+    - source: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>
       target: /index.html
-      status: 404-200
+      status: '200'
