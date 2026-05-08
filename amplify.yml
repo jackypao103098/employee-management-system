@@ -3,10 +3,11 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd frontend/react && npm ci
+        - cd frontend/react
+        - npm ci
     build:
       commands:
-        - cd frontend/react && npm run build
+        - npm run build
   artifacts:
     baseDirectory: frontend/react/dist
     files:
@@ -15,6 +16,9 @@ frontend:
     paths:
       - frontend/react/node_modules/**/*
   customRules:
-    - source: </^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>
-      target: /index.html
+    - source: /api/v1/<*>
+      target: https://d16m8xa74z2ftt.cloudfront.net/api/v1/<*>
       status: '200'
+    - source: /<*>
+      target: /index.html
+      status: 404-200
