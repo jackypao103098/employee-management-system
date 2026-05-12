@@ -22,7 +22,27 @@
         <docker.image.name>employee-management-api</docker.image.name>
         <docker.image.tag/>
         <jsonwebtoken.version>0.11.5</jsonwebtoken.version>
+        <!-- Spring Boot 3.0.0 ships Byte Buddy 1.12.x, which can't parse JDK 21+ bytecode
+             and makes Mockito fail with "cannot mock this class" on newer JDKs. -->
+        <byte-buddy.version>1.17.6</byte-buddy.version>
+        <!-- Testcontainers 1.17.x (and its bundled docker-java) talks Docker API v1.32,
+             which Docker Engine 29 no longer accepts. -->
+        <testcontainers.version>1.20.6</testcontainers.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Pull in a recent Testcontainers + docker-java instead of the ones
+                 transitively pinned by spring-boot-dependencies 3.0.0. -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -66,19 +86,16 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.17.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.17.6</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>1.17.6</version>
             <scope>test</scope>
         </dependency>
 
@@ -169,6 +186,11 @@
                     <excludes>
                         <exclude>**/*IntegrationTest.java</exclude>
                     </excludes>
+                    <systemPropertyVariables>
+                        <!-- Testcontainers' bundled docker-java otherwise falls back to
+                             Docker API v1.32, which Docker Engine 29+ rejects (min is 1.40). -->
+                        <api.version>1.41</api.version>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -182,6 +204,7 @@
                     </includes>
                     <systemPropertyVariables>
                         <test.server.port>${tomcat.http.port}</test.server.port>
+                        <api.version>1.41</api.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
