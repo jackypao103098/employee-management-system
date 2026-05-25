@@ -6,6 +6,9 @@
 .vscode/
 *.zip
 
+# Sensitive config (contains DB credentials for test profile)
+**/application-test.yml
+
 # Javascript
 
 # Logs
