@@ -19,7 +19,6 @@ import {
     useColorModeValue,
     useDisclosure,
     VStack,
-    Image
 } from '@chakra-ui/react';
 
 import {
@@ -30,6 +29,7 @@ import {
     FiMenu,
     FiSettings,
     FiStar,
+    FiUsers,
     FiTrendingUp
 } from 'react-icons/fi';
 import {useAuth} from "../context/AuthContext.jsx";
@@ -86,12 +86,17 @@ const SidebarContent = ({onClose, ...rest}) => {
                 <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold" mb={5}>
                     Dashboard
                 </Text>
-                <Image
-                    borderRadius='full'
-                    boxSize='75px'
-                    src='https://user-images.githubusercontent.com/40702606/210880158-e7d698c2-b19a-4057-b415-09f48a746753.png'
-                    alt='Employee Management'
-                />
+                <Flex
+                    boxSize="75px"
+                    borderRadius="full"
+                    align="center"
+                    justify="center"
+                    bg="green.100"
+                    color="green.700"
+                    aria-label="Employee Management"
+                >
+                    <Icon as={FiUsers} boxSize="38px" />
+                </Flex>
                 <CloseButton display={{base: 'flex', md: 'none'}} onClick={onClose}/>
             </Flex>
             {LinkItems.map((link) => (
@@ -177,12 +182,7 @@ const MobileNav = ({onOpen, ...rest}) => {
                             transition="all 0.3s"
                             _focus={{boxShadow: 'none'}}>
                             <HStack>
-                                <Avatar
-                                    size={'sm'}
-                                    src={
-                                        'https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9'
-                                    }
-                                />
+                                <Avatar size={'sm'} name={employee?.username} />
                                 <VStack
                                     display={{base: 'none', md: 'flex'}}
                                     alignItems="flex-start"
