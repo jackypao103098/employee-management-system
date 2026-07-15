@@ -8,6 +8,8 @@
 
 🔗 https://main.d1zjxnolctj65r.amplifyapp.com
 
+> 備註：為了控制 AWS 成本，後端服務平時可能不會持續啟動；若 Demo 無法操作，可能是後端暫時關閉。
+
 **Demo 帳號**
 - Email：`demo@jackypao.com`
 - Password：`password`
