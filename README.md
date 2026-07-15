@@ -1,83 +1,83 @@
-# Employee Management System
+# 員工管理系統
 
-A full-stack employee management system built with Spring Boot, React, and PostgreSQL, deployed on AWS (Elastic Beanstalk + Amplify + S3 + CloudFront).
+這是一個全端員工管理系統，使用 Spring Boot、React 和 PostgreSQL 建置，並部署在 AWS 上（Elastic Beanstalk + Amplify + S3 + CloudFront）。
 
-> Built upon the [Amigoscode Spring Boot Fullstack course](https://www.amigoscode.com), extended with CI/CD pipelines, AWS cloud deployment, and production bug fixes.
+> 本專案以 [Amigoscode Spring Boot Fullstack course](https://www.amigoscode.com) 為基礎，後續延伸加入 CI/CD 流程、AWS 雲端部署，以及實際部署時遇到的正式環境問題修復。
 
-## Live Demo
+## 線上展示
 
 🔗 https://main.d1zjxnolctj65r.amplifyapp.com
 
-**Demo Account**
-- Email: `demo@jackypao.com`
-- Password: `password`
+**Demo 帳號**
+- Email：`demo@jackypao.com`
+- Password：`password`
 
-## Screenshots
+## 畫面截圖
 
-![Login Page](docs/login.png)
-![Dashboard](docs/dashboard.png)
+![登入頁面](docs/login.png)
+![Dashboard 頁面](docs/dashboard.png)
 
-## Tech Stack
+## 技術棧
 
-**Backend**
-- Java 17 + Spring Boot 3
-- Spring Security 6 (JWT-based authentication)
+**後端**
+- Java 17 + Spring Boot 3.4
+- Spring Security 6（以 JWT 為基礎的身分驗證）
 - Spring Data JPA + JDBC
 - PostgreSQL
-- Flyway (database migrations)
-- AWS S3 (profile image storage)
+- Flyway（資料庫 migration）
+- AWS S3（員工大頭照儲存）
 - Docker + AWS Elastic Beanstalk
 
-**Frontend**
-- React 18 + Vite
+**前端**
+- React 18 + TypeScript + Vite
 - Chakra UI
-- Formik + Yup (form validation)
+- Formik + Yup（表單驗證）
 - React Router v6
 - AWS Amplify + CloudFront
 
-## Features
+## 功能
 
-- Employee CRUD operations (create, read, update, delete)
-- JWT authentication and authorization
-- Profile image upload via AWS S3
-- Responsive UI with green color theme
-- CI/CD via GitHub Actions
+- 員工 CRUD 操作（新增、查詢、更新、刪除）
+- JWT 身分驗證與授權
+- 透過 AWS S3 上傳員工大頭照
+- 響應式 UI，使用綠色系主題
+- 使用 GitHub Actions 建立 CI/CD 流程
 
-## API Endpoints
+## API 端點
 
-| Method | Path | Description |
+| Method | Path | 說明 |
 |--------|------|-------------|
-| GET | `/api/v1/employees` | List all employees |
-| GET | `/api/v1/employees/{id}` | Get employee by ID |
-| POST | `/api/v1/employees` | Create new employee |
-| PUT | `/api/v1/employees/{id}` | Update employee |
-| DELETE | `/api/v1/employees/{id}` | Delete employee |
-| POST | `/api/v1/employees/{id}/profile-image` | Upload profile image |
-| GET | `/api/v1/employees/{id}/profile-image` | Get profile image |
-| POST | `/api/v1/auth/login` | Login |
+| GET | `/api/v1/employees` | 取得所有員工 |
+| GET | `/api/v1/employees/{id}` | 依 ID 取得員工 |
+| POST | `/api/v1/employees` | 建立新員工 |
+| PUT | `/api/v1/employees/{id}` | 更新員工資料 |
+| DELETE | `/api/v1/employees/{id}` | 刪除員工 |
+| POST | `/api/v1/employees/{id}/profile-image` | 上傳員工大頭照 |
+| GET | `/api/v1/employees/{id}/profile-image` | 取得員工大頭照 |
+| POST | `/api/v1/auth/login` | 登入 |
 
-## Getting Started
+## 快速開始
 
-### Prerequisites
+### 前置需求
 - Java 17+
 - Node.js 18+
 - Docker + Docker Compose
 - Maven
 
-### Running Locally
+### 本機執行
 
-Start the database:
+啟動資料庫：
 ```bash
 docker compose up -d
 ```
 
-Start the backend:
+啟動後端：
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-Start the frontend:
+啟動前端：
 ```bash
 cd frontend/react
 npm install
