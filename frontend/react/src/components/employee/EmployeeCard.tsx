@@ -16,13 +16,13 @@ import {
 } from '@chakra-ui/react';
 
 import {useRef} from 'react'
-import {employeeProfilePictureUrl, deleteEmployee} from "../../services/client.js";
-import {errorNotification, successNotification} from "../../services/notification.js";
-import UpdateEmployeeDrawer from "./UpdateEmployeeDrawer.jsx";
+import {employeeProfilePictureUrl, deleteEmployee} from "../../services/client";
+import {errorNotification, successNotification} from "../../services/notification";
+import UpdateEmployeeDrawer from "./UpdateEmployeeDrawer";
 
 export default function CardWithImage({id, name, email, age, gender, imageNumber, fetchEmployees}) {
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const cancelRef = useRef()
+    const cancelRef = useRef<HTMLButtonElement>(null)
 
     return (
         <Center py={6}>
@@ -46,8 +46,8 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
                 <Flex justify={'center'} mt={-12}>
                     <Avatar
                         size={'xl'}
+                        name={name}
                         src={employeeProfilePictureUrl(id)}
-                        alt={'Author'}
                         css={{
                             border: '2px solid white',
                         }}
@@ -108,8 +108,7 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
                                             Cancel
                                         </Button>
                                         <Button colorScheme='red' onClick={() => {
-                                            deleteEmployee(id).then(res => {
-                                                console.log(res)
+                                            deleteEmployee(id).then(() => {
                                                 successNotification(
                                                     'Employee deleted',
                                                     `${name} was successfully deleted`
@@ -117,7 +116,6 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
                                                 fetchEmployees();
 
                                             }).catch(err => {
-                                                console.log(err);
                                                 errorNotification(
                                                     err.code,
                                                     err.response.data.message

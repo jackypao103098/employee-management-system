@@ -1,10 +1,11 @@
 import {Form, Formik, useField} from 'formik';
 import * as Yup from 'yup';
 import {Alert, AlertIcon, Box, Button, FormLabel, Input, Select, Stack} from "@chakra-ui/react";
-import {saveEmployee} from "../../services/client.js";
-import {successNotification, errorNotification} from "../../services/notification.js";
+import {saveEmployee} from "../../services/client";
+import {successNotification, errorNotification} from "../../services/notification";
+import {NewEmployee} from "../../types/employee";
 
-const MyTextInput = ({label, ...props}) => {
+const MyTextInput = ({label, ...props}: { label: string; name: string; [key: string]: any }) => {
     const [field, meta] = useField(props);
     return (
         <Box>
@@ -20,7 +21,7 @@ const MyTextInput = ({label, ...props}) => {
     );
 };
 
-const MySelect = ({label, ...props}) => {
+const MySelect = ({label, ...props}: { label: string; name: string; [key: string]: any }) => {
     const [field, meta] = useField(props);
     return (
         <Box>
@@ -71,16 +72,14 @@ const CreateEmployeeForm = ({ onSuccess }) => {
                 })}
                 onSubmit={(employee, {setSubmitting}) => {
                     setSubmitting(true);
-                    saveEmployee(employee)
+                    saveEmployee(employee as NewEmployee)
                         .then(res => {
-                            console.log(res);
                             successNotification(
                                 "Employee saved",
                                 `${employee.name} was successfully saved`
                             )
                             onSuccess(res.headers["authorization"]);
                         }).catch(err => {
-                            console.log(err);
                             errorNotification(
                                 err.code,
                                 err.response.data.message

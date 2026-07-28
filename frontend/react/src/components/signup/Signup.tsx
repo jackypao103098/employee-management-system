@@ -1,8 +1,8 @@
-import {useAuth} from "../context/AuthContext.jsx";
+import {useAuth} from "../context/AuthContext";
 import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 import {Flex, Heading, Image, Link, Stack, Text} from "@chakra-ui/react";
-import CreateEmployeeForm from "../shared/CreateEmployeeForm.jsx";
+import CreateEmployeeForm from "../shared/CreateEmployeeForm";
 
 const Signup = () => {
     const { employee, setEmployeeFromToken } = useAuth();

@@ -8,7 +8,9 @@
 
 🔗 https://main.d1zjxnolctj65r.amplifyapp.com
 
-> 備註：為了控制 AWS 成本，後端服務平時可能不會持續啟動；若 Demo 無法操作，可能是後端暫時關閉。
+> **展示模式：** 為了控制 AWS 成本，線上網站預設不連接後端服務。
+> 登入與員工 CRUD 皆可直接操作，資料只會儲存在目前瀏覽器，
+> 不會寫入正式資料庫。真實 AWS 後端環境會在需要展示完整架構時啟動。
 
 **Demo 帳號**
 - Email：`demo@jackypao.com`
@@ -85,3 +87,32 @@ cd frontend/react
 npm install
 npm run dev
 ```
+
+### 前端展示模式
+
+前端支援不連接後端、RDS 與 S3 的展示模式。登入、員工 CRUD
+與小型頭像上傳會改用瀏覽器 `localStorage`，適合在 AWS 後端環境
+關閉時持續提供面試展示。
+
+`frontend/react/.env` 預設啟用展示模式：
+
+```dotenv
+VITE_API_MODE=demo
+```
+
+展示帳號：
+
+```text
+Email: demo@jackypao.com
+Password: password
+```
+
+需要連接 Spring Boot 後端時，於建置環境設定：
+
+```dotenv
+VITE_API_MODE=real
+VITE_API_BASE_URL=https://your-api.example.com
+```
+
+Amplify Console 中設定的環境變數會覆蓋 `.env`，因此可讓不同 branch
+分別使用 `demo` 與 `real` 模式。

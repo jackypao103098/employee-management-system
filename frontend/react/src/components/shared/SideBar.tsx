@@ -28,11 +28,10 @@ import {
     FiHome,
     FiMenu,
     FiSettings,
-    FiStar,
-    FiUsers,
+    FiStar, FiUsers,
     FiTrendingUp
 } from 'react-icons/fi';
-import {useAuth} from "../context/AuthContext.jsx";
+import {useAuth} from "../context/AuthContext";
 
 const LinkItems = [
     {name: 'Home', icon: FiHome},
@@ -110,7 +109,7 @@ const SidebarContent = ({onClose, ...rest}) => {
 
 const NavItem = ({icon, children, ...rest}) => {
     return (
-        // <Link href="frontend/react/src/components/shared#" style={{textDecoration: 'none'}} _focus={{boxShadow: 'none'}}>
+            // @ts-expect-error Chakra UI v2.4 responsive style props produce a union too complex for TS to represent here (TS2590)
             <Flex
                 align="center"
                 p="4"

@@ -1,26 +1,37 @@
 import {
     createContext,
+    ReactNode,
     useContext,
     useEffect,
     useState
 } from "react";
-import {getEmployees, login as performLogin} from "../../services/client.js";
+import { AxiosResponse } from "axios";
+import { login as performLogin } from "../../services/client";
 import jwtDecode from "jwt-decode";
+import { AuthenticatedEmployee, JwtToken, LoginRequest } from "../../types/employee";
 
-const AuthContext = createContext({});
+interface AuthContextType {
+    employee: AuthenticatedEmployee | null;
+    login: (usernameAndPassword: LoginRequest) => Promise<AxiosResponse>;
+    logOut: () => void;
+    isEmployeeAuthenticated: () => boolean;
+    setEmployeeFromToken: () => void;
+}
 
-const AuthProvider = ({ children }) => {
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-    const [employee, setEmployee] = useState(null);
+const AuthProvider = ({ children }: { children: ReactNode }) => {
+
+    const [employee, setEmployee] = useState<AuthenticatedEmployee | null>(null);
 
     const setEmployeeFromToken = () => {
-        let token = localStorage.getItem("access_token");
+        const token = localStorage.getItem("access_token");
         if (token) {
             try {
-                token = jwtDecode(token);
+                const decodedToken = jwtDecode<JwtToken>(token);
                 setEmployee({
-                    username: token.sub,
-                    roles: token.scopes
+                    username: decodedToken.sub,
+                    roles: decodedToken.scopes
                 })
             } catch (e) {
                 localStorage.removeItem("access_token");
@@ -32,13 +43,13 @@ const AuthProvider = ({ children }) => {
     }, [])
 
 
-    const login = async (usernameAndPassword) => {
+    const login = async (usernameAndPassword: LoginRequest): Promise<AxiosResponse> => {
         return new Promise((resolve, reject) => {
             performLogin(usernameAndPassword).then(res => {
-                const jwtToken = res.headers["authorization"];
+                const jwtToken = res.headers["authorization"] as string;
                 localStorage.setItem("access_token", jwtToken);
 
-                const decodedToken = jwtDecode(jwtToken);
+                const decodedToken = jwtDecode<JwtToken>(jwtToken);
 
                 setEmployee({
                     username: decodedToken.sub,
@@ -56,13 +67,13 @@ const AuthProvider = ({ children }) => {
         setEmployee(null)
     }
 
-    const isEmployeeAuthenticated = () => {
+    const isEmployeeAuthenticated = (): boolean => {
         const token = localStorage.getItem("access_token");
         if (!token) {
             return false;
         }
         try {
-            const { exp: expiration } = jwtDecode(token);
+            const { exp: expiration } = jwtDecode<JwtToken>(token);
             if (Date.now() > expiration * 1000) {
                 logOut()
                 return false;
