@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -121,6 +122,7 @@ public class EmployeeService {
         employeeDao.updateEmployee(employee);
     }
 
+    @Transactional
     public void uploadEmployeeProfileImage(Integer employeeId,
                                            MultipartFile file) {
         checkIfEmployeeExistsOrThrow(employeeId);
