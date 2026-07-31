@@ -11,12 +11,12 @@ import {
     Stack,
     VStack
 } from "@chakra-ui/react";
-import {employeeProfilePictureUrl, updateEmployee, uploadEmployeeProfilePicture} from "../../services/client.js";
-import {errorNotification, successNotification} from "../../services/notification.js";
+import {employeeProfilePictureUrl, updateEmployee, uploadEmployeeProfilePicture} from "../../services/client";
+import {errorNotification, successNotification} from "../../services/notification";
 import {useCallback} from "react";
 import {useDropzone} from "react-dropzone";
 
-const MyTextInput = ({label, ...props}) => {
+const MyTextInput = ({label, ...props}: { label: string; name: string; [key: string]: any }) => {
     const [field, meta] = useField(props);
     return (
         <Box>

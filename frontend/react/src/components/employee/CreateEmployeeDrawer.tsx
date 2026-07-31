@@ -9,36 +9,30 @@ import {
     DrawerOverlay,
     useDisclosure
 } from "@chakra-ui/react";
-import UpdateEmployeeForm from "./UpdateEmployeeForm.jsx";
+import CreateEmployeeForm from "../shared/CreateEmployeeForm";
 
-const CloseIcon = () => "x";
+const AddIcon = () => <>+</>;
+const CloseIcon = () => <>&times;</>;
 
-const UpdateEmployeeDrawer = ({ fetchEmployees, initialValues, employeeId }) => {
+const CreateEmployeeDrawer = ({ fetchEmployees }) => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     return <>
         <Button
-            bg={'gray.200'}
-            color={'black'}
-            rounded={'full'}
-            _hover={{
-                transform: 'translateY(-2px)',
-                boxShadow: 'lg'
-            }}
+            leftIcon={<AddIcon/>}
+            colorScheme={"green"}
             onClick={onOpen}
         >
-            Update
+            Create Employee
         </Button>
         <Drawer isOpen={isOpen} onClose={onClose} size={"xl"}>
             <DrawerOverlay />
             <DrawerContent>
                 <DrawerCloseButton />
-                <DrawerHeader>Update employee</DrawerHeader>
+                <DrawerHeader>Create new employee</DrawerHeader>
 
                 <DrawerBody>
-                    <UpdateEmployeeForm
-                        fetchEmployees={fetchEmployees}
-                        initialValues={initialValues}
-                        employeeId={employeeId}
+                    <CreateEmployeeForm
+                        onSuccess={fetchEmployees}
                     />
                 </DrawerBody>
 
@@ -56,4 +50,4 @@ const UpdateEmployeeDrawer = ({ fetchEmployees, initialValues, employeeId }) => 
 
 }
 
-export default UpdateEmployeeDrawer;
+export default CreateEmployeeDrawer;

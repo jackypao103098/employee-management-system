@@ -1,6 +1,6 @@
 package com.jackypao;
 
-import com.github.javafaker.Faker;
+import net.datafaker.Faker;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.jdbc.DataSourceBuilder;

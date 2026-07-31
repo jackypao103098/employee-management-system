@@ -2,8 +2,8 @@ package com.jackypao.journey;
 
 import com.jackypao.customer.*;
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.entity.mime.MultipartPartBuilder;
-import com.github.javafaker.Faker;
-import com.github.javafaker.Name;
+import net.datafaker.Faker;
+import net.datafaker.providers.base.Name;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

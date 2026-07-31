@@ -4,33 +4,47 @@ import {
     Spinner,
     Text
 } from '@chakra-ui/react';
-import SidebarWithHeader from "./components/shared/SideBar.jsx";
+import SidebarWithHeader from "./components/shared/SideBar";
 import { useEffect, useState } from 'react';
-import { getEmployees } from "./services/client.js";
-import CardWithImage from "./components/employee/EmployeeCard.jsx";
-import CreateEmployeeDrawer from "./components/employee/CreateEmployeeDrawer.jsx";
-import {errorNotification} from "./services/notification.js";
+import { getEmployees, isDemoMode, resetDemoData } from "./services/client";
+import CardWithImage from "./components/employee/EmployeeCard";
+import CreateEmployeeDrawer from "./components/employee/CreateEmployeeDrawer";
+import {errorNotification, successNotification} from "./services/notification";
+import { Employee } from "./types/employee";
+import DemoModeBanner from "./components/shared/DemoModeBanner";
 
 const App = () => {
 
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(false);
     const [err, setError] = useState("");
 
     const fetchEmployees = () => {
         setLoading(true);
+        setError("");
         getEmployees().then(res => {
             setEmployees(res.data)
         }).catch(err => {
-            setError(err.response.data.message)
+            const message = err.response?.data?.message ?? "Unable to load employees";
+            setError(message)
             errorNotification(
-                err.code,
-                err.response.data.message
+                err.code ?? "EMPLOYEE_LOAD_ERROR",
+                message
             )
         }).finally(() => {
             setLoading(false)
         })
     }
+
+    const resetEmployees = () => {
+        resetDemoData();
+        fetchEmployees();
+        successNotification("展示資料已重設", "員工資料已恢復為預設內容");
+    }
+
+    const demoModeBanner = isDemoMode
+        ? <DemoModeBanner onReset={resetEmployees}/>
+        : null;
 
     useEffect(() => {
         fetchEmployees();
@@ -39,6 +53,7 @@ const App = () => {
     if (loading) {
         return (
             <SidebarWithHeader>
+                {demoModeBanner}
                 <Spinner
                     thickness='4px'
                     speed='0.65s'
@@ -53,6 +68,7 @@ const App = () => {
     if (err) {
         return (
             <SidebarWithHeader>
+                {demoModeBanner}
                 <CreateEmployeeDrawer
                     fetchEmployees={fetchEmployees}
                 />
@@ -64,6 +80,7 @@ const App = () => {
     if(employees.length <= 0) {
         return (
             <SidebarWithHeader>
+                {demoModeBanner}
                 <CreateEmployeeDrawer
                     fetchEmployees={fetchEmployees}
                 />
@@ -74,12 +91,13 @@ const App = () => {
 
     return (
         <SidebarWithHeader>
+            {demoModeBanner}
             <CreateEmployeeDrawer
                 fetchEmployees={fetchEmployees}
             />
             <Wrap justify={"center"} spacing={"30px"}>
                 {employees.map((employee, index) => (
-                    <WrapItem key={index}>
+                    <WrapItem key={employee.id}>
                         <CardWithImage
                             {...employee}
                             imageNumber={index}

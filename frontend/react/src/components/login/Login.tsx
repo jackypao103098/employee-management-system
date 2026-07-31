@@ -15,12 +15,13 @@ import {
 } from '@chakra-ui/react';
 import {Formik, Form, useField} from "formik";
 import * as Yup from 'yup';
-import {useAuth} from "../context/AuthContext.jsx";
-import {errorNotification} from "../../services/notification.js";
+import {useAuth} from "../context/AuthContext";
+import {errorNotification} from "../../services/notification";
 import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
+import {isDemoMode} from "../../services/client";
 
-const MyTextInput = ({label, ...props}) => {
+const MyTextInput = ({label, ...props}: { label: string; name: string; [key: string]: any }) => {
     const [field, meta] = useField(props);
     return (
         <Box>
@@ -53,12 +54,14 @@ const LoginForm = () => {
                         .required("Password is required")
                 })
             }
-            initialValues={{username: '', password: ''}}
+            initialValues={{
+                username: isDemoMode ? 'demo@jackypao.com' : '',
+                password: isDemoMode ? 'password' : ''
+            }}
             onSubmit={(values, {setSubmitting}) => {
                 setSubmitting(true);
-                login(values).then(res => {
+                login(values).then(() => {
                     navigate("/dashboard")
-                    console.log("Successfully logged in");
                 }).catch(err => {
                     errorNotification(
                         err.code,
@@ -116,7 +119,14 @@ const Login = () => {
                     <Heading fontSize={'2xl'} mb={15}>Employee Management System</Heading>
                     <Text color={'gray.500'} mb={5}>Sign in to manage your employees</Text>
                     <Box bg={'green.50'} border={'1px'} borderColor={'green.200'} borderRadius={'md'} p={4}>
-                        <Text fontWeight={'bold'} color={'green.700'} mb={2}>Demo Account</Text>
+                        <Text fontWeight={'bold'} color={'green.700'} mb={2}>
+                            {isDemoMode ? "展示模式" : "Demo Account"}
+                        </Text>
+                        {isDemoMode && (
+                            <Text fontSize={'sm'} mb={2}>
+                                資料只會儲存在目前瀏覽器，不會連線到正式後端。
+                            </Text>
+                        )}
                         <Text fontSize={'sm'}>Email: <Code colorScheme='green'>demo@jackypao.com</Code></Text>
                         <Text fontSize={'sm'}>Password: <Code colorScheme='green'>password</Code></Text>
                     </Box>

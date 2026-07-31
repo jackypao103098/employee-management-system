@@ -47,7 +47,7 @@ public class EmployeeJDBCDataAccessService implements EmployeeDao {
                 INSERT INTO employee(name, email, password, age, gender)
                 VALUES (?, ?, ?, ?, ?)
                 """;
-        int result = jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 employee.getName(),
                 employee.getEmail(),
@@ -55,8 +55,6 @@ public class EmployeeJDBCDataAccessService implements EmployeeDao {
                 employee.getAge(),
                 employee.getGender().name()
         );
-
-        System.out.println("insertEmployee result " + result);
     }
 
     @Override
@@ -88,37 +86,33 @@ public class EmployeeJDBCDataAccessService implements EmployeeDao {
                 FROM employee
                 WHERE id = ?
                 """;
-        int result = jdbcTemplate.update(sql, employeeId);
-        System.out.println("deleteEmployeeById result = " + result);
+        jdbcTemplate.update(sql, employeeId);
     }
 
     @Override
     public void updateEmployee(Employee update) {
         if (update.getName() != null) {
             String sql = "UPDATE employee SET name = ? WHERE id = ?";
-            int result = jdbcTemplate.update(
+            jdbcTemplate.update(
                     sql,
                     update.getName(),
                     update.getId()
             );
-            System.out.println("update employee name result = " + result);
         }
         if (update.getAge() != null) {
             String sql = "UPDATE employee SET age = ? WHERE id = ?";
-            int result = jdbcTemplate.update(
+            jdbcTemplate.update(
                     sql,
                     update.getAge(),
                     update.getId()
             );
-            System.out.println("update employee age result = " + result);
         }
         if (update.getEmail() != null) {
             String sql = "UPDATE employee SET email = ? WHERE id = ?";
-            int result = jdbcTemplate.update(
+            jdbcTemplate.update(
                     sql,
                     update.getEmail(),
                     update.getId());
-            System.out.println("update employee email result = " + result);
         }
     }
 

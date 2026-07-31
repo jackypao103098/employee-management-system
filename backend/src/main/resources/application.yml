@@ -4,17 +4,16 @@ server:
     include-message: always
 
 cors:
-  allowed-origins: "*"
-  allowed-methods: "*"
-  allowed-headers: "*"
-  exposed-headers: "*"
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+  allowed-methods: ${CORS_ALLOWED_METHODS:*}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+  exposed-headers: ${CORS_EXPOSED_HEADERS:*}
 
 aws:
-  region: eu-west-1
+  region: ${AWS_REGION:eu-west-1}
   s3:
-    mock: true
     buckets:
-      customer: fs-jackypao-employee-test
+      customer: ${AWS_S3_BUCKET_CUSTOMER:fs-jackypao-employee-test}
 
 management:
   endpoints:
@@ -23,21 +22,16 @@ management:
         include: "health,info"
 
 spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5332/employee}
-    username: ${SPRING_DATASOURCE_USERNAME:jackypao}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
+  profiles:
+    default: local
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    show-sql: true
-  flyway:
-    validate-on-migrate: false
-    ignore-missing-migrations: true
+        format_sql: false
+    show-sql: false
   main:
     web-application-type: servlet
   servlet:
