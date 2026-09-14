@@ -4,7 +4,7 @@
 
 [🌐 Live Demo](https://main.d1zjxnolctj65r.amplifyapp.com) · [☕ Spring Boot 版本](https://github.com/jackypao103098/employee-management-system/tree/springboot-interview-v1) · [📂 Repository](https://github.com/jackypao103098/employee-management-system)
 
-> Live Demo 使用共用 React 前端的 browser demo mode，資料保存在瀏覽器，不會呼叫 .NET API；完整 .NET API 可依下方步驟在本機執行。
+> **展示模式：** 為了控制 AWS 成本，線上網站預設不連接後端與資料庫。登入及 Employee CRUD 可直接操作，資料只會儲存在目前瀏覽器，不會寫入正式資料庫。ASP.NET Core API、JWT 權限控制與 PostgreSQL 可透過 Docker 在本機完整執行；AWS 部署列為後續規劃。
 
 **Demo 帳號：** `demo@jackypao.com`／`password`
 
