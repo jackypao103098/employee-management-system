@@ -9,7 +9,7 @@
 | 應徵方向 | 穩定展示版本 | 重點 |
 |---|---|---|
 | Java Backend Engineer | [Spring Boot interview v1](https://github.com/jackypao103098/employee-management-system/tree/springboot-interview-v1) | Spring Boot、Spring Security、PostgreSQL、Flyway、AWS、CI/CD |
-| C#／.NET Backend Engineer | [.NET interview v1](https://github.com/jackypao103098/employee-management-system/tree/dotnet-interview-v1/employee-management-dotnet) | ASP.NET Core、EF Core、PostgreSQL、JWT、xUnit、React 串接 |
+| C#／.NET Backend Engineer | [.NET interview v2](https://github.com/jackypao103098/employee-management-system/tree/dotnet-interview-v2/employee-management-dotnet) | ASP.NET Core、EF Core、PostgreSQL、JWT、xUnit、React 串接 |
 
 面試標籤是已驗證的固定快照；日常開發仍會繼續在各分支進行。Java 版本包含 AWS 圖片儲存與部署；.NET 版本目前完成 CRUD、查詢分頁、JWT Authentication／Authorization 與測試，尚未實作圖片 API。
 
