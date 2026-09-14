@@ -4,14 +4,12 @@
 
 ## 面試官快速入口
 
-這個 repository 展示同一套員工管理需求的 Java／Spring Boot 原始實作，以及後續以 C#／ASP.NET Core 進行的重構。請依應徵職缺選擇對應的穩定版本：
+這個 repository 展示同一套員工管理需求的 Java／Spring Boot 原始實作，以及後續以 C#／ASP.NET Core 進行的重構：
 
-| 應徵方向 | 穩定展示版本 | 重點 |
-|---|---|---|
-| Java Backend Engineer | [Spring Boot interview v1](https://github.com/jackypao103098/employee-management-system/tree/springboot-interview-v1) | Spring Boot、Spring Security、PostgreSQL、Flyway、AWS、CI/CD |
-| C#／.NET Backend Engineer | [.NET interview v2](https://github.com/jackypao103098/employee-management-system/tree/dotnet-interview-v2/employee-management-dotnet) | ASP.NET Core、EF Core、PostgreSQL、JWT、xUnit、React 串接 |
+- ☕ **Java／Spring Boot**：本頁即為主要版本，包含 Spring Security、PostgreSQL、Flyway、AWS 與 CI/CD。[查看 Backend 原始碼](backend/)
+- 🔷 **C#／ASP.NET Core**：獨立重構版本，包含 EF Core、PostgreSQL、JWT、xUnit 與 React 串接。[查看 .NET Side Project](https://github.com/jackypao103098/employee-management-system/tree/dotnet-interview-v2/employee-management-dotnet)
 
-面試標籤是已驗證的固定快照；日常開發仍會繼續在各分支進行。Java 版本包含 AWS 圖片儲存與部署；.NET 版本目前完成 CRUD、查詢分頁、JWT Authentication／Authorization 與測試，尚未實作圖片 API。
+.NET 連結指向已驗證的固定快照；日常開發仍會繼續在各分支進行。
 
 > 本專案以 [Amigoscode Spring Boot Fullstack course](https://www.amigoscode.com) 為基礎，後續延伸加入 CI/CD 流程、AWS 雲端部署，以及實際部署時遇到的正式環境問題修復。
 
