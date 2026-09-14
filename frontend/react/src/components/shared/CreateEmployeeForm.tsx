@@ -4,6 +4,7 @@ import {Alert, AlertIcon, Box, Button, FormLabel, Input, Select, Stack} from "@c
 import {saveEmployee} from "../../services/client";
 import {successNotification, errorNotification} from "../../services/notification";
 import {NewEmployee} from "../../types/employee";
+import {getApiErrorMessage} from "../../services/apiError";
 
 const MyTextInput = ({label, ...props}: { label: string; name: string; [key: string]: any }) => {
     const [field, meta] = useField(props);
@@ -53,15 +54,15 @@ const CreateEmployeeForm = ({ onSuccess }) => {
                         .max(15, 'Must be 15 characters or less')
                         .required('Required'),
                     email: Yup.string()
-                        .email('Must be 20 characters or less')
+                        .email('Must be a valid email address')
                         .required('Required'),
                     age: Yup.number()
                         .min(16, 'Must be at least 16 years of age')
                         .max(100, 'Must be less than 100 years of age')
                         .required(),
                     password: Yup.string()
-                        .min(4, 'Must be 4 characters or more')
-                        .max(15, 'Must be 15 characters or less')
+                        .min(8, 'Must be 8 characters or more')
+                        .max(100, 'Must be 100 characters or less')
                         .required('Required'),
                     gender: Yup.string()
                         .oneOf(
@@ -73,16 +74,16 @@ const CreateEmployeeForm = ({ onSuccess }) => {
                 onSubmit={(employee, {setSubmitting}) => {
                     setSubmitting(true);
                     saveEmployee(employee as NewEmployee)
-                        .then(res => {
+                        .then(() => {
                             successNotification(
                                 "Employee saved",
                                 `${employee.name} was successfully saved`
                             )
-                            onSuccess(res.headers["authorization"]);
+                            onSuccess();
                         }).catch(err => {
                             errorNotification(
-                                err.code,
-                                err.response.data.message
+                                err.code ?? "EMPLOYEE_CREATE_ERROR",
+                                getApiErrorMessage(err, "Unable to create employee")
                             )
                     }).finally(() => {
                          setSubmitting(false);

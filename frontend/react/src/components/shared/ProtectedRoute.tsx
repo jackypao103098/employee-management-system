@@ -1,19 +1,20 @@
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../context/AuthContext";
+import {isAuthenticationEnabled} from "../../services/client";
 
 const ProtectedRoute = ({ children }) => {
 
-    const { isEmployeeAuthenticated } = useAuth()
+    const { employee } = useAuth()
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!isEmployeeAuthenticated()) {
+        if (isAuthenticationEnabled && !employee) {
             navigate("/")
         }
-    })
+    }, [employee, navigate])
 
-    return isEmployeeAuthenticated() ? children : "";
+    return !isAuthenticationEnabled || employee ? children : null;
 }
 
 export default ProtectedRoute;

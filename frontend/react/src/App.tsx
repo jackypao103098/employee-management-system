@@ -12,12 +12,15 @@ import CreateEmployeeDrawer from "./components/employee/CreateEmployeeDrawer";
 import {errorNotification, successNotification} from "./services/notification";
 import { Employee } from "./types/employee";
 import DemoModeBanner from "./components/shared/DemoModeBanner";
+import {getApiErrorMessage} from "./services/apiError";
+import {useAuth} from "./components/context/AuthContext";
 
 const App = () => {
 
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(false);
     const [err, setError] = useState("");
+    const {isAdmin} = useAuth();
 
     const fetchEmployees = () => {
         setLoading(true);
@@ -25,7 +28,7 @@ const App = () => {
         getEmployees().then(res => {
             setEmployees(res.data)
         }).catch(err => {
-            const message = err.response?.data?.message ?? "Unable to load employees";
+            const message = getApiErrorMessage(err, "Unable to load employees");
             setError(message)
             errorNotification(
                 err.code ?? "EMPLOYEE_LOAD_ERROR",
@@ -69,9 +72,7 @@ const App = () => {
         return (
             <SidebarWithHeader>
                 {demoModeBanner}
-                <CreateEmployeeDrawer
-                    fetchEmployees={fetchEmployees}
-                />
+                {isAdmin && <CreateEmployeeDrawer fetchEmployees={fetchEmployees}/>}
                 <Text mt={5}>Ooops there was an error</Text>
             </SidebarWithHeader>
         )
@@ -81,9 +82,7 @@ const App = () => {
         return (
             <SidebarWithHeader>
                 {demoModeBanner}
-                <CreateEmployeeDrawer
-                    fetchEmployees={fetchEmployees}
-                />
+                {isAdmin && <CreateEmployeeDrawer fetchEmployees={fetchEmployees}/>}
                 <Text mt={5}>No employees available</Text>
             </SidebarWithHeader>
         )
@@ -92,9 +91,7 @@ const App = () => {
     return (
         <SidebarWithHeader>
             {demoModeBanner}
-            <CreateEmployeeDrawer
-                fetchEmployees={fetchEmployees}
-            />
+            {isAdmin && <CreateEmployeeDrawer fetchEmployees={fetchEmployees}/>}
             <Wrap justify={"center"} spacing={"30px"}>
                 {employees.map((employee, index) => (
                     <WrapItem key={employee.id}>

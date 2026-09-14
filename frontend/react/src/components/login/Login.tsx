@@ -20,6 +20,7 @@ import {errorNotification} from "../../services/notification";
 import {useNavigate} from "react-router-dom";
 import {useEffect} from "react";
 import {isDemoMode} from "../../services/client";
+import {getApiErrorMessage} from "../../services/apiError";
 
 const MyTextInput = ({label, ...props}: { label: string; name: string; [key: string]: any }) => {
     const [field, meta] = useField(props);
@@ -46,16 +47,17 @@ const LoginForm = () => {
             validateOnMount={true}
             validationSchema={
                 Yup.object({
-                    username: Yup.string()
+                    email: Yup.string()
                         .email("Must be valid email")
                         .required("Email is required"),
                     password: Yup.string()
-                        .max(20, "Password cannot be more than 20 characters")
+                        .min(8, "Password must be at least 8 characters")
+                        .max(100, "Password cannot be more than 100 characters")
                         .required("Password is required")
                 })
             }
             initialValues={{
-                username: isDemoMode ? 'demo@jackypao.com' : '',
+                email: isDemoMode ? 'demo@jackypao.com' : '',
                 password: isDemoMode ? 'password' : ''
             }}
             onSubmit={(values, {setSubmitting}) => {
@@ -64,8 +66,8 @@ const LoginForm = () => {
                     navigate("/dashboard")
                 }).catch(err => {
                     errorNotification(
-                        err.code,
-                        err.response.data.message
+                        err.code ?? "LOGIN_FAILED",
+                        getApiErrorMessage(err, "Email or password is incorrect.")
                     )
                 }).finally(() => {
                     setSubmitting(false);
@@ -77,7 +79,7 @@ const LoginForm = () => {
                     <Stack mt={15} spacing={15}>
                         <MyTextInput
                             label={"Email"}
-                            name={"username"}
+                            name={"email"}
                             type={"email"}
                             placeholder={"hello@example.com"}
                         />
@@ -110,7 +112,7 @@ const Login = () => {
         if (employee) {
             navigate("/dashboard");
         }
-    })
+    }, [employee, navigate])
 
     return (
         <Stack minH={'100vh'} direction={{base: 'column', md: 'row'}}>
@@ -118,18 +120,16 @@ const Login = () => {
                 <Stack spacing={4} w={'full'} maxW={'md'}>
                     <Heading fontSize={'2xl'} mb={15}>Employee Management System</Heading>
                     <Text color={'gray.500'} mb={5}>Sign in to manage your employees</Text>
-                    <Box bg={'green.50'} border={'1px'} borderColor={'green.200'} borderRadius={'md'} p={4}>
-                        <Text fontWeight={'bold'} color={'green.700'} mb={2}>
-                            {isDemoMode ? "展示模式" : "Demo Account"}
-                        </Text>
-                        {isDemoMode && (
+                    {isDemoMode && (
+                        <Box bg={'green.50'} border={'1px'} borderColor={'green.200'} borderRadius={'md'} p={4}>
+                            <Text fontWeight={'bold'} color={'green.700'} mb={2}>展示模式</Text>
                             <Text fontSize={'sm'} mb={2}>
                                 資料只會儲存在目前瀏覽器，不會連線到正式後端。
                             </Text>
-                        )}
-                        <Text fontSize={'sm'}>Email: <Code colorScheme='green'>demo@jackypao.com</Code></Text>
-                        <Text fontSize={'sm'}>Password: <Code colorScheme='green'>password</Code></Text>
-                    </Box>
+                            <Text fontSize={'sm'}>Email: <Code colorScheme='green'>demo@jackypao.com</Code></Text>
+                            <Text fontSize={'sm'}>Password: <Code colorScheme='green'>password</Code></Text>
+                        </Box>
+                    )}
                     <LoginForm/>
                     <Link color={"green.500"} href={"/signup"}>
                         Dont have an account? Signup now.

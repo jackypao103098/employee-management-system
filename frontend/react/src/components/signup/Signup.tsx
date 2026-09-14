@@ -5,24 +5,22 @@ import {Flex, Heading, Image, Link, Stack, Text} from "@chakra-ui/react";
 import CreateEmployeeForm from "../shared/CreateEmployeeForm";
 
 const Signup = () => {
-    const { employee, setEmployeeFromToken } = useAuth();
+    const { employee } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (employee) {
             navigate("/dashboard");
         }
-    })
+    }, [employee, navigate])
 
     return (
         <Stack minH={'100vh'} direction={{base: 'column', md: 'row'}}>
             <Flex p={8} flex={1} alignItems={'center'} justifyContent={'center'}>
                 <Stack spacing={4} w={'full'} maxW={'md'}>
                     <Heading fontSize={'2xl'} mb={15}>Register for an account</Heading>
-                    <CreateEmployeeForm onSuccess={(token) => {
-                        localStorage.setItem("access_token", token)
-                        setEmployeeFromToken()
-                        navigate("/dashboard");
+                    <CreateEmployeeForm onSuccess={() => {
+                        navigate("/");
                     }}/>
                     <Link color={"green.500"} href={"/"}>
                         Have an account? Login now.

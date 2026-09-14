@@ -1,4 +1,5 @@
 @EmployeeManagement_Api_HostAddress = http://localhost:5180
+@accessToken = replace-with-token-from-login-response
 
 GET {{EmployeeManagement_Api_HostAddress}}/health
 Accept: application/json
@@ -7,3 +8,65 @@ Accept: application/json
 
 GET {{EmployeeManagement_Api_HostAddress}}/api/v1/system/info
 Accept: application/json
+
+###
+
+POST {{EmployeeManagement_Api_HostAddress}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "your-email@example.com",
+  "password": "your-password"
+}
+
+###
+
+GET {{EmployeeManagement_Api_HostAddress}}/api/v1/employees
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{EmployeeManagement_Api_HostAddress}}/api/v1/employees?name=ada&department=engineering&sortDirection=asc&page=1&pageSize=10
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+###
+
+POST {{EmployeeManagement_Api_HostAddress}}/api/v1/employees
+Content-Type: application/json
+
+{
+  "name": "王小明",
+  "email": "ming@example.com",
+  "age": 30,
+  "gender": "MALE",
+  "password": "password123",
+  "department": "Engineering",
+  "hireDate": "2026-09-01"
+}
+
+###
+
+GET {{EmployeeManagement_Api_HostAddress}}/api/v1/employees/1
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+###
+
+PUT {{EmployeeManagement_Api_HostAddress}}/api/v1/employees/1
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "王大明",
+  "email": "ming@example.com",
+  "age": 31,
+  "department": "Engineering",
+  "hireDate": "2026-09-01"
+}
+
+###
+
+DELETE {{EmployeeManagement_Api_HostAddress}}/api/v1/employees/1
+Authorization: Bearer {{accessToken}}

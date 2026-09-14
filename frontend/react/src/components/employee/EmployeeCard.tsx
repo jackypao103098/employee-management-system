@@ -16,13 +16,16 @@ import {
 } from '@chakra-ui/react';
 
 import {useRef} from 'react'
-import {employeeProfilePictureUrl, deleteEmployee} from "../../services/client";
+import {employeeProfilePictureUrl, deleteEmployee, supportsProfileImages} from "../../services/client";
 import {errorNotification, successNotification} from "../../services/notification";
 import UpdateEmployeeDrawer from "./UpdateEmployeeDrawer";
+import {getApiErrorMessage} from "../../services/apiError";
+import {useAuth} from "../context/AuthContext";
 
 export default function CardWithImage({id, name, email, age, gender, imageNumber, fetchEmployees}) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef<HTMLButtonElement>(null)
+    const {isAdmin, canManageEmployee} = useAuth()
 
     return (
         <Center py={6}>
@@ -47,7 +50,7 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
                     <Avatar
                         size={'xl'}
                         name={name}
-                        src={employeeProfilePictureUrl(id)}
+                        src={supportsProfileImages ? employeeProfilePictureUrl(id) : undefined}
                         css={{
                             border: '2px solid white',
                         }}
@@ -65,14 +68,14 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
                     </Stack>
                 </Box>
                 <Stack direction={'row'} justify={'center'} spacing={6} p={4}>
-                    <Stack>
+                    {canManageEmployee(id) && <Stack>
                         <UpdateEmployeeDrawer
                             initialValues={{ name, email, age }}
                             employeeId={id}
                             fetchEmployees={fetchEmployees}
                         />
-                    </Stack>
-                    <Stack>
+                    </Stack>}
+                    {isAdmin && <Stack>
                         <Button
                             bg={'red.400'}
                             color={'white'}
@@ -117,8 +120,8 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
 
                                             }).catch(err => {
                                                 errorNotification(
-                                                    err.code,
-                                                    err.response.data.message
+                                                    err.code ?? "EMPLOYEE_DELETE_ERROR",
+                                                    getApiErrorMessage(err, "Unable to delete employee")
                                                 )
                                             }).finally(() => {
                                                 onClose()
@@ -130,7 +133,7 @@ export default function CardWithImage({id, name, email, age, gender, imageNumber
                                 </AlertDialogContent>
                             </AlertDialogOverlay>
                         </AlertDialog>
-                    </Stack>
+                    </Stack>}
 
                 </Stack>
             </Box>

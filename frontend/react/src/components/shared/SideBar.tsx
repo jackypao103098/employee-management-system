@@ -181,18 +181,16 @@ const MobileNav = ({onOpen, ...rest}) => {
                             transition="all 0.3s"
                             _focus={{boxShadow: 'none'}}>
                             <HStack>
-                                <Avatar size={'sm'} name={employee?.username} />
+                                <Avatar size={'sm'} name={employee?.email} />
                                 <VStack
                                     display={{base: 'none', md: 'flex'}}
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{employee?.username}</Text>
-                                    {employee?.roles.map((role, id) => (
-                                        <Text key={id} fontSize="xs" color="gray.600">
-                                            {role}
-                                        </Text>
-                                    ))}
+                                    <Text fontSize="sm">{employee?.email}</Text>
+                                    <Text fontSize="xs" color="gray.600">
+                                        {employee?.role}
+                                    </Text>
                                 </VStack>
                                 <Box display={{base: 'none', md: 'flex'}}>
                                     <FiChevronDown/>

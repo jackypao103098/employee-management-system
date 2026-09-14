@@ -11,10 +11,16 @@ import {
     Stack,
     VStack
 } from "@chakra-ui/react";
-import {employeeProfilePictureUrl, updateEmployee, uploadEmployeeProfilePicture} from "../../services/client";
+import {
+    employeeProfilePictureUrl,
+    supportsProfileImages,
+    updateEmployee,
+    uploadEmployeeProfilePicture
+} from "../../services/client";
 import {errorNotification, successNotification} from "../../services/notification";
 import {useCallback} from "react";
 import {useDropzone} from "react-dropzone";
+import {getApiErrorMessage} from "../../services/apiError";
 
 const MyTextInput = ({label, ...props}: { label: string; name: string; [key: string]: any }) => {
     const [field, meta] = useField(props);
@@ -71,18 +77,20 @@ const MyDropzone = ({ employeeId, fetchEmployees }) => {
 const UpdateEmployeeForm = ({fetchEmployees, initialValues, employeeId}) => {
     return (
         <>
-            <VStack spacing={'5'} mb={'5'}>
-                <Image
-                    borderRadius={'full'}
-                    boxSize={'150px'}
-                    objectFit={'cover'}
-                    src={employeeProfilePictureUrl(employeeId)}
-                />
-                <MyDropzone
-                    employeeId={employeeId}
-                    fetchEmployees={fetchEmployees}
-                />
-            </VStack>
+            {supportsProfileImages && (
+                <VStack spacing={'5'} mb={'5'}>
+                    <Image
+                        borderRadius={'full'}
+                        boxSize={'150px'}
+                        objectFit={'cover'}
+                        src={employeeProfilePictureUrl(employeeId)}
+                    />
+                    <MyDropzone
+                        employeeId={employeeId}
+                        fetchEmployees={fetchEmployees}
+                    />
+                </VStack>
+            )}
             <Formik
                 initialValues={initialValues}
                 validationSchema={Yup.object({
@@ -108,8 +116,8 @@ const UpdateEmployeeForm = ({fetchEmployees, initialValues, employeeId}) => {
                             fetchEmployees();
                         }).catch(err => {
                             errorNotification(
-                                err.code,
-                                err.response.data.message
+                                err.code ?? "EMPLOYEE_UPDATE_ERROR",
+                                getApiErrorMessage(err, "Unable to update employee")
                             )
                         }).finally(() => {
                             setSubmitting(false);

@@ -1,102 +1,85 @@
-import {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState
-} from "react";
-import { AxiosResponse } from "axios";
-import { login as performLogin } from "../../services/client";
+import {createContext, ReactNode, useContext, useState} from "react";
+import {login as performLogin} from "../../services/client";
 import jwtDecode from "jwt-decode";
-import { AuthenticatedEmployee, JwtToken, LoginRequest } from "../../types/employee";
+import {AuthenticatedEmployee, JwtToken, LoginRequest} from "../../types/employee";
+import {
+    clearAccessToken,
+    getAccessToken,
+    setAccessToken
+} from "../../services/authToken";
 
 interface AuthContextType {
     employee: AuthenticatedEmployee | null;
-    login: (usernameAndPassword: LoginRequest) => Promise<AxiosResponse>;
+    login: (credentials: LoginRequest) => Promise<void>;
     logOut: () => void;
-    isEmployeeAuthenticated: () => boolean;
-    setEmployeeFromToken: () => void;
+    isAdmin: boolean;
+    canManageEmployee: (employeeId: number) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
-const AuthProvider = ({ children }: { children: ReactNode }) => {
+const readEmployeeFromToken = (): AuthenticatedEmployee | null => {
+    const token = getAccessToken();
+    if (!token) {
+        return null;
+    }
 
-    const [employee, setEmployee] = useState<AuthenticatedEmployee | null>(null);
-
-    const setEmployeeFromToken = () => {
-        const token = localStorage.getItem("access_token");
-        if (token) {
-            try {
-                const decodedToken = jwtDecode<JwtToken>(token);
-                setEmployee({
-                    username: decodedToken.sub,
-                    roles: decodedToken.scopes
-                })
-            } catch (e) {
-                localStorage.removeItem("access_token");
-            }
+    try {
+        const claims = jwtDecode<JwtToken>(token);
+        const employeeId = Number(claims.sub);
+        if (
+            !Number.isInteger(employeeId) ||
+            !claims.email ||
+            !["ADMIN", "EMPLOYEE"].includes(claims.role) ||
+            Date.now() >= claims.exp * 1000
+        ) {
+            clearAccessToken();
+            return null;
         }
+
+        return {
+            id: employeeId,
+            email: claims.email,
+            role: claims.role
+        };
+    } catch {
+        clearAccessToken();
+        return null;
     }
-    useEffect(() => {
-        setEmployeeFromToken()
-    }, [])
+};
 
+const AuthProvider = ({children}: { children: ReactNode }) => {
+    const [employee, setEmployee] = useState<AuthenticatedEmployee | null>(
+        readEmployeeFromToken
+    );
 
-    const login = async (usernameAndPassword: LoginRequest): Promise<AxiosResponse> => {
-        return new Promise((resolve, reject) => {
-            performLogin(usernameAndPassword).then(res => {
-                const jwtToken = res.headers["authorization"] as string;
-                localStorage.setItem("access_token", jwtToken);
-
-                const decodedToken = jwtDecode<JwtToken>(jwtToken);
-
-                setEmployee({
-                    username: decodedToken.sub,
-                    roles: decodedToken.scopes
-                })
-                resolve(res);
-            }).catch(err => {
-                reject(err);
-            })
-        })
-    }
+    const login = async (credentials: LoginRequest): Promise<void> => {
+        const response = await performLogin(credentials);
+        setAccessToken(response.data.accessToken);
+        setEmployee(readEmployeeFromToken());
+    };
 
     const logOut = () => {
-        localStorage.removeItem("access_token")
-        setEmployee(null)
-    }
+        clearAccessToken();
+        setEmployee(null);
+    };
 
-    const isEmployeeAuthenticated = (): boolean => {
-        const token = localStorage.getItem("access_token");
-        if (!token) {
-            return false;
-        }
-        try {
-            const { exp: expiration } = jwtDecode<JwtToken>(token);
-            if (Date.now() > expiration * 1000) {
-                logOut()
-                return false;
-            }
-            return true;
-        } catch (e) {
-            logOut();
-            return false;
-        }
-    }
+    const isAdmin = employee?.role === "ADMIN";
+    const canManageEmployee = (employeeId: number): boolean =>
+        isAdmin || employee?.id === employeeId;
 
     return (
         <AuthContext.Provider value={{
             employee,
             login,
             logOut,
-            isEmployeeAuthenticated,
-            setEmployeeFromToken
+            isAdmin,
+            canManageEmployee
         }}>
             {children}
         </AuthContext.Provider>
-    )
-}
+    );
+};
 
 export const useAuth = () => useContext(AuthContext);
 

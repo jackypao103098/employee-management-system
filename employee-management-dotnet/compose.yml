@@ -1,0 +1,19 @@
+services:
+  employee-database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: employee_management
+      POSTGRES_USER: employee_app
+      POSTGRES_PASSWORD: local-development-only
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U employee_app -d employee_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - employee-database-data:/var/lib/postgresql/data
+
+volumes:
+  employee-database-data:

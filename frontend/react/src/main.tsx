@@ -9,6 +9,7 @@ import Signup from "./components/signup/Signup";
 import AuthProvider from "./components/context/AuthContext";
 import ProtectedRoute from "./components/shared/ProtectedRoute";
 import './index.css'
+import {isAuthenticationEnabled} from "./services/client";
 
 const { ToastContainer } = createStandaloneToast();
 
@@ -37,7 +38,7 @@ const theme = extendTheme({
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Login />
+        element: isAuthenticationEnabled ? <Login /> : <App />
     },
     {
         path: "/signup",
