@@ -140,7 +140,7 @@ public sealed class EmployeeServiceTests
     }
 
     private static EmployeeService CreateService(AppDbContext dbContext) =>
-        new(dbContext, new Pbkdf2PasswordHashingService());
+        new(dbContext, new Pbkdf2PasswordHashingService(), TimeProvider.System);
 
     private static Employee CreateEmployee(
         string name,

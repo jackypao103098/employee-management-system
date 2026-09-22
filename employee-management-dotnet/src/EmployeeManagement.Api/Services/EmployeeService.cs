@@ -11,7 +11,8 @@ namespace EmployeeManagement.Api.Services;
 
 public sealed class EmployeeService(
     AppDbContext dbContext,
-    IPasswordHashingService passwordHashingService) : IEmployeeService
+    IPasswordHashingService passwordHashingService,
+    TimeProvider timeProvider) : IEmployeeService
 {
     private const string DefaultDepartment = "Unassigned";
 
@@ -25,25 +26,33 @@ public sealed class EmployeeService(
             employee.Department,
             employee.HireDate);
 
+    private static readonly Func<Employee, EmployeeResponse> ToResponse =
+        ProjectToResponse.Compile();
+
     public async Task<IReadOnlyList<EmployeeResponse>> GetAllAsync(
         EmployeeQueryRequest query,
         CancellationToken cancellationToken)
     {
         var employees = dbContext.Employees.AsNoTracking();
 
+        // EF Core translates ToLower() to SQL lower(); the culture-aware and
+        // StringComparison overloads suggested by these analyzers cannot be translated.
+#pragma warning disable CA1304, CA1311, CA1862
+
         if (!string.IsNullOrWhiteSpace(query.Name))
         {
-            var normalizedName = query.Name.Trim().ToLower();
+            var normalizedName = query.Name.Trim().ToLowerInvariant();
             employees = employees.Where(employee =>
                 employee.Name.ToLower().Contains(normalizedName));
         }
 
         if (!string.IsNullOrWhiteSpace(query.Department))
         {
-            var normalizedDepartment = query.Department.Trim().ToLower();
+            var normalizedDepartment = query.Department.Trim().ToLowerInvariant();
             employees = employees.Where(employee =>
                 employee.Department.ToLower() == normalizedDepartment);
         }
+#pragma warning restore CA1304, CA1311, CA1862
 
         var orderedEmployees = query.SortDirection == HireDateSortDirection.Asc
             ? employees.OrderBy(employee => employee.HireDate).ThenBy(employee => employee.Id)
@@ -85,7 +94,7 @@ public sealed class EmployeeService(
             Gender = request.Gender,
             PasswordHash = passwordHashingService.Hash(request.Password),
             Department = NormalizeDepartment(request.Department),
-            HireDate = request.HireDate ?? DateOnly.FromDateTime(DateTime.UtcNow)
+            HireDate = request.HireDate ?? DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime)
         };
 
         dbContext.Employees.Add(employee);
@@ -163,14 +172,4 @@ public sealed class EmployeeService(
         string.IsNullOrWhiteSpace(department)
             ? DefaultDepartment
             : department.Trim();
-
-    private static EmployeeResponse ToResponse(Employee employee) =>
-        new(
-            employee.Id,
-            employee.Name,
-            employee.Email,
-            employee.Age,
-            employee.Gender,
-            employee.Department,
-            employee.HireDate);
 }
