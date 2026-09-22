@@ -7,7 +7,7 @@
 這個 repository 展示同一套員工管理需求的 Java／Spring Boot 原始實作，以及後續以 C#／ASP.NET Core 進行的重構：
 
 - ☕ **Java／Spring Boot**：本頁即為主要版本，包含 Spring Security、PostgreSQL、Flyway、AWS 與 CI/CD。[查看 Backend 原始碼](backend/)
-- 🔷 **C#／ASP.NET Core**：獨立重構版本，包含 EF Core、PostgreSQL、JWT、xUnit 與 React 串接。[查看 .NET Side Project](https://github.com/jackypao103098/employee-management-system/tree/dotnet-interview-v5/employee-management-dotnet)
+- 🔷 **C#／ASP.NET Core**：獨立重構版本，包含 EF Core、PostgreSQL、JWT、xUnit 與 React 串接。[查看 .NET Side Project](https://github.com/jackypao103098/employee-management-system/tree/dotnet-interview-v6/employee-management-dotnet)
 
 .NET 連結指向已驗證的固定快照；日常開發仍會繼續在各分支進行。
 
