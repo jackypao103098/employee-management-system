@@ -22,7 +22,7 @@
 - 搜尋、部門篩選、排序與分頁
 - DTO validation、Problem Details 與一致的 HTTP status code
 - xUnit service tests 與 HTTP integration tests
-- 前端部署於 AWS Amplify；同專案的 Spring Boot 版本已部署於 AWS（Elastic Beanstalk、S3、CloudFront）
+- 前端部署於 AWS Amplify
 
 ## Tech Stack
 
