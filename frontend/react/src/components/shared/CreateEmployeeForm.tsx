@@ -61,8 +61,12 @@ const CreateEmployeeForm = ({ onSuccess }) => {
                         .max(100, 'Must be less than 100 years of age')
                         .required(),
                     password: Yup.string()
-                        .min(8, 'Must be 8 characters or more')
+                        .min(12, 'Must be 12 characters or more')
                         .max(100, 'Must be 100 characters or less')
+                        .matches(/[A-Z]/, 'Must include an uppercase letter')
+                        .matches(/[a-z]/, 'Must include a lowercase letter')
+                        .matches(/[0-9]/, 'Must include a number')
+                        .matches(/[^A-Za-z0-9]/, 'Must include a special character')
                         .required('Required'),
                     gender: Yup.string()
                         .oneOf(

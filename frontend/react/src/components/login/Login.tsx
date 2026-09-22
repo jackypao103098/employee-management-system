@@ -9,7 +9,6 @@ import {
     Heading,
     Image,
     Input,
-    Link,
     Stack,
     Text,
 } from '@chakra-ui/react';
@@ -131,9 +130,6 @@ const Login = () => {
                         </Box>
                     )}
                     <LoginForm/>
-                    <Link color={"green.500"} href={"/signup"}>
-                        Dont have an account? Signup now.
-                    </Link>
                 </Stack>
             </Flex>
             <Flex
