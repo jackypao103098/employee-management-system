@@ -17,7 +17,6 @@
 ## 技術亮點
 
 - **角色與資源擁有權授權**：建立與刪除限 Admin（Role-based），修改資料限本人或 Admin（resource-based policy）。Role 與本人 ID 只取自簽章驗證過的 JWT，不信任 request body。
-- **密碼安全**：PBKDF2-SHA512（210,000 iterations）搭配 fixed-time 比對；舊格式 hash 在登入成功後自動升級。API 與前端同步要求強密碼。
 - **一致的錯誤回應**：以 `IExceptionHandler` 統一輸出 Problem Details，401／403／404／409 語意明確。
 - **查詢**：名稱搜尋、部門篩選、依到職日排序與分頁，使用 `AsNoTracking` 與 projection，只查詢需要的欄位。
 - **安全日誌**：登入失敗只記錄 Email 的 SHA-256 fingerprint，不記錄密碼、Token 或原始 Email。
