@@ -182,6 +182,35 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     }
 
     [Fact]
+    public async Task OpenApi_DescribesJwtBearerAuthentication()
+    {
+        var response = await _client.GetAsync("/openapi/v1.json", CancellationToken.None);
+        var document = await response.Content.ReadFromJsonAsync<JsonElement>(
+            CancellationToken.None);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var bearerScheme = document
+            .GetProperty("components")
+            .GetProperty("securitySchemes")
+            .GetProperty("Bearer");
+        Assert.Equal("http", bearerScheme.GetProperty("type").GetString());
+        Assert.Equal("bearer", bearerScheme.GetProperty("scheme").GetString());
+        Assert.Equal("JWT", bearerScheme.GetProperty("bearerFormat").GetString());
+
+        var globalSecurity = document.GetProperty("security");
+        Assert.Contains(
+            globalSecurity.EnumerateArray(),
+            requirement => requirement.TryGetProperty("Bearer", out _));
+
+        var loginSecurity = document
+            .GetProperty("paths")
+            .GetProperty("/api/v1/auth/login")
+            .GetProperty("post")
+            .GetProperty("security");
+        Assert.Empty(loginSecurity.EnumerateArray());
+    }
+
+    [Fact]
     public async Task GetAll_WithQueryParameters_FiltersSortsAndPaginates()
     {
         await AuthenticateAsAdminAsync();
