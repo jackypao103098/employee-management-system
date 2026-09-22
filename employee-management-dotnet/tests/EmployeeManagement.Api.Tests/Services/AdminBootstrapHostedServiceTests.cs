@@ -13,9 +13,32 @@ namespace EmployeeManagement.Api.Tests.Services;
 public sealed class AdminBootstrapHostedServiceTests
 {
     [Fact]
-    public async Task StartAsync_WithInjectedCredentials_PromotesExistingEmployeeOnce()
+    public async Task StartAsync_WithWeakPassword_RejectsBootstrap()
     {
-        const string bootstrapPassword = "bootstrap-test-password";
+        await using var provider = CreateServiceProvider();
+        await SeedEmployeeAsync(provider);
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AdminBootstrap:Email"] = "owner@example.com",
+                ["AdminBootstrap:Password"] = "123456789123"
+            })
+            .Build();
+        var service = new AdminBootstrapHostedService(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            configuration,
+            NullLogger<AdminBootstrapHostedService>.Instance);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.StartAsync(CancellationToken.None));
+
+        Assert.Equal(PasswordPolicy.ErrorMessage, exception.Message);
+    }
+
+    [Fact]
+    public async Task StartAsync_WithInjectedCredentials_PromotesExistingEmployee()
+    {
+        const string bootstrapPassword = "BootstrapTest123!";
         await using var provider = CreateServiceProvider();
         await SeedEmployeeAsync(provider);
         var configuration = new ConfigurationBuilder()
@@ -43,6 +66,56 @@ public sealed class AdminBootstrapHostedServiceTests
         Assert.Equal(
             PasswordVerificationResult.Success,
             passwordHashingService.Verify(bootstrapPassword, employee.PasswordHash));
+    }
+
+    [Fact]
+    public async Task StartAsync_WhenEmployeeIsAlreadyAdmin_ReplacesWeakPassword()
+    {
+        const string weakPassword = "123456789123";
+        const string strongPassword = "ReplacementPass123!";
+        await using var provider = CreateServiceProvider();
+        await SeedEmployeeAsync(provider);
+
+        await using (var scope = provider.CreateAsyncScope())
+        {
+            var employee = await scope.ServiceProvider
+                .GetRequiredService<AppDbContext>()
+                .Employees.SingleAsync(CancellationToken.None);
+            var passwordHashingService = scope.ServiceProvider
+                .GetRequiredService<IPasswordHashingService>();
+            employee.Role = EmployeeRole.Admin;
+            employee.PasswordHash = passwordHashingService.Hash(weakPassword);
+            await scope.ServiceProvider
+                .GetRequiredService<AppDbContext>()
+                .SaveChangesAsync(CancellationToken.None);
+        }
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["AdminBootstrap:Email"] = "owner@example.com",
+                ["AdminBootstrap:Password"] = strongPassword
+            })
+            .Build();
+        var service = new AdminBootstrapHostedService(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            configuration,
+            NullLogger<AdminBootstrapHostedService>.Instance);
+
+        await service.StartAsync(CancellationToken.None);
+
+        await using var verificationScope = provider.CreateAsyncScope();
+        var updatedEmployee = await verificationScope.ServiceProvider
+            .GetRequiredService<AppDbContext>()
+            .Employees.SingleAsync(CancellationToken.None);
+        var hasher = verificationScope.ServiceProvider
+            .GetRequiredService<IPasswordHashingService>();
+        Assert.Equal(
+            PasswordVerificationResult.Success,
+            hasher.Verify(strongPassword, updatedEmployee.PasswordHash));
+        Assert.Equal(
+            PasswordVerificationResult.Failed,
+            hasher.Verify(weakPassword, updatedEmployee.PasswordHash));
     }
 
     private static ServiceProvider CreateServiceProvider()

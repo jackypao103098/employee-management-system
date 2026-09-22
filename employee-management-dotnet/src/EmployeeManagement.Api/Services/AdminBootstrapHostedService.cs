@@ -26,10 +26,9 @@ public sealed class AdminBootstrapHostedService(
                 "AdminBootstrap__Email and AdminBootstrap__Password must be provided together.");
         }
 
-        if (password.Length < 12)
+        if (!PasswordPolicy.IsStrong(password))
         {
-            throw new InvalidOperationException(
-                "AdminBootstrap__Password must contain at least 12 characters.");
+            throw new InvalidOperationException(PasswordPolicy.ErrorMessage);
         }
 
         await using var scope = scopeFactory.CreateAsyncScope();
@@ -43,20 +42,12 @@ public sealed class AdminBootstrapHostedService(
             ?? throw new InvalidOperationException(
                 "Admin bootstrap account must match an existing employee.");
 
-        if (employee.Role == EmployeeRole.Admin)
-        {
-            logger.LogInformation(
-                "Admin bootstrap skipped because employee {EmployeeId} is already an admin.",
-                employee.Id);
-            return;
-        }
-
         employee.Role = EmployeeRole.Admin;
         employee.PasswordHash = passwordHashingService.Hash(password);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogWarning(
-            "Admin bootstrap completed for employee {EmployeeId}. " +
+            "Admin bootstrap promoted or reset credentials for employee {EmployeeId}. " +
             "Remove AdminBootstrap environment variables before the next start.",
             employee.Id);
     }

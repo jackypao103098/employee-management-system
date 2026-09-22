@@ -36,9 +36,11 @@ public sealed class EmployeesController(
     }
 
     [HttpPost]
-    [AllowAnonymous]
+    [Authorize(Roles = EmployeeRoleNames.Admin)]
     [ProducesResponseType<EmployeeResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<EmployeeResponse>> Create(
         CreateEmployeeRequest request,

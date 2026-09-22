@@ -18,7 +18,7 @@ public sealed class EmployeeServiceTests
         var service = CreateService(dbContext);
 
         var response = await service.CreateAsync(
-            new CreateEmployeeRequest(" Ada Lovelace ", " ADA@Example.COM ", 36, Gender.Female, "password123"),
+            new CreateEmployeeRequest(" Ada Lovelace ", " ADA@Example.COM ", 36, Gender.Female, "EmployeePass123!"),
             CancellationToken.None);
 
         var persistedEmployee = await dbContext.Employees.SingleAsync(
@@ -26,7 +26,7 @@ public sealed class EmployeeServiceTests
         Assert.Equal("Ada Lovelace", response.Name);
         Assert.Equal("ada@example.com", response.Email);
         Assert.Equal("ada@example.com", persistedEmployee.Email);
-        Assert.NotEqual("password123", persistedEmployee.PasswordHash);
+        Assert.NotEqual("EmployeePass123!", persistedEmployee.PasswordHash);
         Assert.StartsWith("pbkdf2-sha512$", persistedEmployee.PasswordHash);
     }
 
@@ -40,7 +40,7 @@ public sealed class EmployeeServiceTests
             "grace@example.com",
             40,
             Gender.Female,
-            "password123");
+            "EmployeePass123!");
 
         await service.CreateAsync(request, CancellationToken.None);
 
@@ -66,7 +66,7 @@ public sealed class EmployeeServiceTests
         await using var dbContext = CreateDbContext();
         var service = CreateService(dbContext);
         var created = await service.CreateAsync(
-            new CreateEmployeeRequest("Alan Turing", "alan@example.com", 30, Gender.Male, "password123"),
+            new CreateEmployeeRequest("Alan Turing", "alan@example.com", 30, Gender.Male, "EmployeePass123!"),
             CancellationToken.None);
 
         var updated = await service.UpdateAsync(

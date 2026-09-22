@@ -35,6 +35,7 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     [Fact]
     public async Task CrudWorkflow_ReturnsExpectedStatusCodesAndPersistsChanges()
     {
+        await AuthenticateAsAdminAsync();
         var email = $"employee-{Guid.NewGuid():N}@example.com";
         var createResponse = await _client.PostAsJsonAsync(
             "/api/v1/employees",
@@ -44,7 +45,7 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
                 email,
                 age = 35,
                 gender = "FEMALE",
-                password = "password123"
+                password = "EmployeePass123!"
             },
             CancellationToken.None);
 
@@ -53,8 +54,6 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
         var createdJson = await createResponse.Content.ReadFromJsonAsync<JsonElement>(
             CancellationToken.None);
         var employeeId = createdJson.GetProperty("id").GetInt32();
-        await AuthenticateAsAdminAsync();
-
         var getResponse = await _client.GetAsync(
             $"/api/v1/employees/{employeeId}",
             CancellationToken.None);
@@ -80,6 +79,7 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     [Fact]
     public async Task Create_WithInvalidEmail_ReturnsBadRequest()
     {
+        await AuthenticateAsAdminAsync();
         var response = await _client.PostAsJsonAsync(
             "/api/v1/employees",
             new
@@ -88,7 +88,7 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
                 email = "not-an-email",
                 age = 30,
                 gender = "MALE",
-                password = "password123"
+                password = "EmployeePass123!"
             },
             CancellationToken.None);
 
@@ -96,8 +96,51 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     }
 
     [Fact]
+    public async Task Create_WithWeakNumericPassword_ReturnsBadRequest()
+    {
+        await AuthenticateAsAdminAsync();
+        var response = await _client.PostAsJsonAsync(
+            "/api/v1/employees",
+            new
+            {
+                name = "Weak Password",
+                email = $"weak-{Guid.NewGuid():N}@example.com",
+                age = 30,
+                gender = "MALE",
+                password = "123456789123"
+            },
+            CancellationToken.None);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_WithoutToken_ReturnsUnauthorized()
+    {
+        var response = await _client.PostAsJsonAsync(
+            "/api/v1/employees",
+            CreateValidEmployeeRequest($"anonymous-{Guid.NewGuid():N}@example.com"),
+            CancellationToken.None);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Create_WhenAuthenticatedEmployee_ReturnsForbidden()
+    {
+        await AuthenticateAsEmployeeAsync();
+        var response = await _client.PostAsJsonAsync(
+            "/api/v1/employees",
+            CreateValidEmployeeRequest($"forbidden-{Guid.NewGuid():N}@example.com"),
+            CancellationToken.None);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Create_WithDuplicateEmail_ReturnsConflict()
     {
+        await AuthenticateAsAdminAsync();
         var email = $"duplicate-{Guid.NewGuid():N}@example.com";
         var request = new
         {
@@ -105,7 +148,7 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
             email,
             age = 30,
             gender = "MALE",
-            password = "password123"
+            password = "EmployeePass123!"
         };
 
         var firstResponse = await _client.PostAsJsonAsync(
@@ -228,14 +271,15 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     [Fact]
     public async Task Update_WhenEmployeeTargetsAnotherEmployee_ReturnsForbidden()
     {
+        await AuthenticateAsAdminAsync();
         var suffix = Guid.NewGuid().ToString("N");
         var first = await CreateEmployeeAndGetIdAsync(
             $"owner-{suffix}@example.com",
-            "password123");
+            "EmployeePass123!");
         var second = await CreateEmployeeAndGetIdAsync(
             $"other-{suffix}@example.com",
-            "password123");
-        await AuthenticateAsync($"owner-{suffix}@example.com", "password123");
+            "EmployeePass123!");
+        await AuthenticateAsync($"owner-{suffix}@example.com", "EmployeePass123!");
 
         var response = await _client.PutAsJsonAsync(
             $"/api/v1/employees/{second}",
@@ -254,10 +298,11 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     [Fact]
     public async Task Update_WhenEmployeeTargetsSelf_ReturnsOk()
     {
+        await AuthenticateAsAdminAsync();
         var suffix = Guid.NewGuid().ToString("N");
         var email = $"self-{suffix}@example.com";
-        var employeeId = await CreateEmployeeAndGetIdAsync(email, "password123");
-        await AuthenticateAsync(email, "password123");
+        var employeeId = await CreateEmployeeAndGetIdAsync(email, "EmployeePass123!");
+        await AuthenticateAsync(email, "EmployeePass123!");
 
         var response = await _client.PutAsJsonAsync(
             $"/api/v1/employees/{employeeId}",
@@ -270,10 +315,11 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     [Fact]
     public async Task Delete_WhenEmployeeIsNotAdmin_ReturnsForbidden()
     {
+        await AuthenticateAsAdminAsync();
         var suffix = Guid.NewGuid().ToString("N");
         var email = $"employee-{suffix}@example.com";
-        var employeeId = await CreateEmployeeAndGetIdAsync(email, "password123");
-        await AuthenticateAsync(email, "password123");
+        var employeeId = await CreateEmployeeAndGetIdAsync(email, "EmployeePass123!");
+        await AuthenticateAsync(email, "EmployeePass123!");
 
         var response = await _client.DeleteAsync(
             $"/api/v1/employees/{employeeId}",
@@ -285,6 +331,7 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     [Fact]
     public async Task Create_WithAdminRoleInBody_StillCreatesEmployeeRole()
     {
+        await AuthenticateAsAdminAsync();
         var suffix = Guid.NewGuid().ToString("N");
         var email = $"role-spoof-{suffix}@example.com";
         var response = await _client.PostAsJsonAsync(
@@ -295,13 +342,13 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
                 email,
                 age = 30,
                 gender = "MALE",
-                password = "password123",
+                password = "EmployeePass123!",
                 role = "ADMIN"
             },
             CancellationToken.None);
         response.EnsureSuccessStatusCode();
 
-        var loginResponse = await LoginAsync(email, "password123");
+        var loginResponse = await LoginAsync(email, "EmployeePass123!");
         var login = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>(
             CancellationToken.None);
 
@@ -345,7 +392,7 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
                 email,
                 age = 30,
                 gender = "FEMALE",
-                password = "password123",
+                password = "EmployeePass123!",
                 department,
                 hireDate
             },
@@ -376,6 +423,9 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
     private async Task AuthenticateAsAdminAsync() =>
         await AuthenticateAsync("ada.lovelace@example.com", EmployeeApiFactory.AdminPassword);
 
+    private async Task AuthenticateAsEmployeeAsync() =>
+        await AuthenticateAsync("grace.hopper@example.com", EmployeeApiFactory.EmployeePassword);
+
     private async Task AuthenticateAsync(string email, string password)
     {
         var response = await LoginAsync(email, password);
@@ -391,6 +441,15 @@ public sealed class EmployeesApiTests : IClassFixture<EmployeeApiFactory>
             "/api/v1/auth/login",
             new { email, password },
             CancellationToken.None);
+
+    private static object CreateValidEmployeeRequest(string email) => new
+    {
+        name = "Created By Admin",
+        email,
+        age = 30,
+        gender = "FEMALE",
+        password = "EmployeePass123!"
+    };
 }
 
 public sealed class EmployeeApiFactory : WebApplicationFactory<Program>
@@ -398,13 +457,14 @@ public sealed class EmployeeApiFactory : WebApplicationFactory<Program>
     public const string JwtIssuer = "EmployeeManagement.Api.Tests";
     public const string JwtAudience = "EmployeeManagement.Api.Tests.Client";
     public const string AdminPassword = "test-admin-password-only";
+    public const string EmployeePassword = "test-employee-password-only";
 
     public string JwtSecret { get; } = Convert.ToBase64String(
         RandomNumberGenerator.GetBytes(64));
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment("Testing");
+        builder.UseEnvironment("Development");
         builder.UseSetting(
             "ConnectionStrings:EmployeeDatabase",
             "Host=localhost;Database=unused-in-integration-tests");
@@ -435,6 +495,10 @@ public sealed class EmployeeApiFactory : WebApplicationFactory<Program>
         admin.PasswordHash = scope.ServiceProvider
             .GetRequiredService<IPasswordHashingService>()
             .Hash(AdminPassword);
+        var employee = dbContext.Employees.Single(employee => employee.Id == -2);
+        employee.PasswordHash = scope.ServiceProvider
+            .GetRequiredService<IPasswordHashingService>()
+            .Hash(EmployeePassword);
         dbContext.SaveChanges();
         return host;
     }

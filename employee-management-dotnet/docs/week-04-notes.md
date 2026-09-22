@@ -42,7 +42,8 @@ API 不接受 Create／Update request 傳入 Role，也不拿 request body 的 E
 
 | 操作 | 未登入 | Employee | Admin |
 |---|---:|---:|---:|
-| 登入／註冊 Employee | 允許 | 允許 | 允許 |
+| 登入 | 允許 | 允許 | 允許 |
+| 建立 Employee | 401 | 403 | 允許 |
 | 查看 Employee | 401 | 允許 | 允許 |
 | 修改自己 | 401 | 允許 | 允許 |
 | 修改別人 | 401 | 403 | 允許 |
@@ -59,7 +60,7 @@ API 不接受 Create／Update request 傳入 Role，也不拿 request body 的 E
 
 ## 密碼安全
 
-新密碼使用隨機 16-byte salt、PBKDF2-HMAC-SHA512、210,000 iterations 與 32-byte derived key。驗證使用 `CryptographicOperations.FixedTimeEquals()`。既有 PBKDF2-SHA256 hash 仍可登入，但成功後會自動換成目前格式。
+新密碼至少 12 字元，且必須同時包含英文大小寫、數字與特殊字元。雜湊使用隨機 16-byte salt、PBKDF2-HMAC-SHA512、210,000 iterations 與 32-byte derived key。驗證使用 `CryptographicOperations.FixedTimeEquals()`。既有 PBKDF2-SHA256 hash 仍可登入，但成功後會自動換成目前格式。
 
 資料庫只保存 `PasswordHash`。DTO、API response 與 Log 都不輸出密碼或 hash。
 
@@ -87,7 +88,7 @@ dotnet user-secrets set "Jwt:Secret" "$(openssl rand -hex 32)" \
   --project src/EmployeeManagement.Api
 ```
 
-Seed Data 不包含可預測的 Admin 密碼。首次 bootstrap Admin 時，由環境變數提供既有 Employee Email 與至少 12 字元的密碼；API 只保存 hash。完成後移除 bootstrap 變數。
+Seed Data 不包含可預測的 Admin 密碼。bootstrap Admin 時，由環境變數提供既有 Employee Email 與符合強度規則的密碼；API 只保存 hash。已是 Admin 時會重設密碼，可用來替換舊弱密碼。完成後立刻移除 bootstrap 變數，避免下次啟動再次重設。
 
 ## 安全日誌
 

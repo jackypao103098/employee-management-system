@@ -35,13 +35,14 @@ Authorization: Bearer {{accessToken}}
 
 POST {{EmployeeManagement_Api_HostAddress}}/api/v1/employees
 Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "name": "王小明",
   "email": "ming@example.com",
   "age": 30,
   "gender": "MALE",
-  "password": "password123",
+  "password": "EmployeePass123!",
   "department": "Engineering",
   "hireDate": "2026-09-01"
 }
