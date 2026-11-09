@@ -1,0 +1,103 @@
+name: CD - Deploy .NET API to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_only:
+        description: Only test and push images (use for the first run, before Azure resources exist)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  API_IMAGE: ghcr.io/jackypao103098/employee-management-dotnet-api
+  MIGRATE_IMAGE: ghcr.io/jackypao103098/employee-management-dotnet-migrate
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: employee-management-dotnet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore
+      - run: dotnet format --verify-no-changes --no-restore
+      - run: dotnet build --configuration Release --no-restore --warnaserror
+      - run: dotnet test --configuration Release --no-build
+
+  publish-images:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    defaults:
+      run:
+        working-directory: employee-management-dotnet
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build and push API image
+        run: |
+          docker build --target runtime -t "$API_IMAGE:$GITHUB_SHA" -t "$API_IMAGE:latest" .
+          docker push --all-tags "$API_IMAGE"
+      - name: Build and push migration image
+        run: |
+          docker build --target migrate -t "$MIGRATE_IMAGE:$GITHUB_SHA" -t "$MIGRATE_IMAGE:latest" .
+          docker push --all-tags "$MIGRATE_IMAGE"
+
+  deploy:
+    if: ${{ !inputs.build_only }}
+    needs: publish-images
+    runs-on: ubuntu-latest
+    environment: azure
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      API_APP: ${{ vars.AZURE_API_APP }}
+      MIGRATION_JOB: ${{ vars.AZURE_MIGRATION_JOB }}
+      POSTGRES_SERVER: ${{ vars.AZURE_POSTGRES_SERVER }}
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Allow Azure CLI extensions
+        run: az config set extension.use_dynamic_install=yes_without_prompt
+      - name: Make sure PostgreSQL is running
+        run: |
+          state="$(az postgres flexible-server show -g "$RESOURCE_GROUP" -n "$POSTGRES_SERVER" --query state -o tsv)"
+          if [ "$state" != "Ready" ]; then
+            az postgres flexible-server start -g "$RESOURCE_GROUP" -n "$POSTGRES_SERVER" -o none
+          fi
+      - name: Run database migrations
+        run: |
+          az containerapp job update -g "$RESOURCE_GROUP" -n "$MIGRATION_JOB" --image "$MIGRATE_IMAGE:$GITHUB_SHA" -o none
+          execution="$(az containerapp job start -g "$RESOURCE_GROUP" -n "$MIGRATION_JOB" --query name -o tsv)"
+          for _ in $(seq 1 60); do
+            status="$(az containerapp job execution show -g "$RESOURCE_GROUP" -n "$MIGRATION_JOB" --job-execution-name "$execution" --query properties.status -o tsv)"
+            echo "Migration status: $status"
+            case "$status" in
+              Succeeded) exit 0 ;;
+              Failed|Stopped|Degraded) exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "Timed out waiting for migrations." >&2
+          exit 1
+      - name: Deploy API
+        run: az containerapp update -g "$RESOURCE_GROUP" -n "$API_APP" --image "$API_IMAGE:$GITHUB_SHA" -o none
+      - name: Smoke test
+        run: |
+          fqdn="$(az containerapp show -g "$RESOURCE_GROUP" -n "$API_APP" --query properties.configuration.ingress.fqdn -o tsv)"
+          curl --fail --silent --show-error --retry 12 --retry-delay 10 --retry-all-errors "https://$fqdn/health"

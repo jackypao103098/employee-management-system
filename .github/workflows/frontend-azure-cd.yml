@@ -1,0 +1,70 @@
+name: CD - Deploy Frontend to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_mode:
+        description: demo keeps data in the browser; real needs the API and PostgreSQL running
+        type: choice
+        options:
+          - demo
+          - real
+        default: demo
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: azure
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      API_APP: ${{ vars.AZURE_API_APP }}
+      STATIC_WEB_APP: ${{ vars.AZURE_STATIC_WEB_APP }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/react/package-lock.json
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Resolve build settings
+        env:
+          API_MODE: ${{ inputs.api_mode }}
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          fqdn="$(az containerapp show -g "$RESOURCE_GROUP" -n "$API_APP" --query properties.configuration.ingress.fqdn -o tsv)"
+          token="$(az staticwebapp secrets list -g "$RESOURCE_GROUP" -n "$STATIC_WEB_APP" --query properties.apiKey -o tsv)"
+          echo "::add-mask::$token"
+          {
+            echo "SWA_TOKEN=$token"
+            echo "VITE_API_BASE_URL=https://$fqdn"
+            echo "VITE_API_MODE=$API_MODE"
+            if [ "$API_MODE" = "real" ]; then
+              echo "VITE_AUTH_ENABLED=true"
+              echo "VITE_PROFILE_IMAGES_ENABLED=false"
+            fi
+          } >> "$GITHUB_ENV"
+      - name: Build
+        working-directory: frontend/react
+        run: |
+          npm ci
+          npm run build
+      - name: Deploy to Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ env.SWA_TOKEN }}
+          action: upload
+          app_location: frontend/react/dist
+          skip_app_build: true
+          skip_api_build: true
+          production_branch: ${{ github.ref_name }}

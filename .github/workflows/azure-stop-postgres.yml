@@ -1,0 +1,35 @@
+name: Azure - Stop PostgreSQL
+
+# Azure restarts a stopped Flexible Server after 7 days, so stop it every night.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 19 * * *" # 03:00 Asia/Taipei
+
+permissions:
+  contents: read
+
+jobs:
+  stop:
+    if: ${{ vars.AZURE_POSTGRES_SERVER != '' }}
+    runs-on: ubuntu-latest
+    environment: azure
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      POSTGRES_SERVER: ${{ vars.AZURE_POSTGRES_SERVER }}
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Stop server if running
+        run: |
+          state="$(az postgres flexible-server show -g "$RESOURCE_GROUP" -n "$POSTGRES_SERVER" --query state -o tsv)"
+          echo "Current state: $state"
+          if [ "$state" = "Ready" ]; then
+            az postgres flexible-server stop -g "$RESOURCE_GROUP" -n "$POSTGRES_SERVER" -o none
+          fi
