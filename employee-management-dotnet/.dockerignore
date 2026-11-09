@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/TestResults/
+.git
+.vs
+.idea
+docs/
+infra/
+tests/
+compose.yml
+README.md
+Dockerfile
+.dockerignore

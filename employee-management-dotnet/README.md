@@ -91,8 +91,23 @@ dotnet test --configuration Release --no-build
 
 PostgreSQL 整合測試使用 Testcontainers，執行時需要 Docker。
 
+## Azure 部署
+
+API 跑在 Container Apps（閒置縮到 0），資料庫是 PostgreSQL Flexible Server，前端在 Static Web Apps，映像放 GHCR，GitHub Actions 以 OIDC 登入 Azure。基礎設施定義在 [`infra/main.bicep`](infra/main.bicep)。
+
+首次部署：
+
+1. `az login`，然後執行 `infra/bootstrap.sh oidc`。
+2. 以 `build_only=true` 執行 `CD - Deploy .NET API to Azure`，並在 GitHub Packages 把兩個映像設為 public。
+3. 執行 `infra/bootstrap.sh infra` 建立 Azure 資源。
+4. 以預設值再執行一次同一個 workflow，套用 migration 並部署 API。
+5. 帶 `ADMIN_BOOTSTRAP_EMAIL`、`ADMIN_BOOTSTRAP_PASSWORD` 執行 `infra/bootstrap.sh infra`，確認 Admin 能登入後，不帶這兩個變數再執行一次。這個步驟的密碼會在每次啟動時重設，所以不能留著。
+6. 執行 `CD - Deploy Frontend to Azure`：`demo` 不需要後端，`real` 需要 PostgreSQL 運作中。
+
+展示前後用 `infra/azure-start.sh`、`infra/azure-stop.sh` 開關 PostgreSQL。Azure 會在停機 7 天後自動重啟，所以 `Azure - Stop PostgreSQL` workflow 每晚會再停一次；停機時儲存仍會計費。
+
 ## Status
 
-下一步：API container 化與 AWS 部署、profile image storage、observability。
+下一步：profile image storage、observability。
 
 技術筆記：[API 基礎](docs/week-01-notes.md) · [CRUD](docs/week-02-notes.md) · [EF Core](docs/week-03-notes.md) · [JWT](docs/week-04-notes.md)
