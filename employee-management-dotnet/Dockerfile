@@ -23,6 +23,7 @@ RUN dotnet tool restore \
 
 # Applies pending EF Core migrations. Build with: docker build --target migrate .
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS migrate
+LABEL org.opencontainers.image.source="https://github.com/jackypao103098/employee-management-system"
 WORKDIR /app
 COPY --from=migrate-build /app/efbundle ./efbundle
 USER $APP_UID
@@ -30,6 +31,7 @@ ENTRYPOINT ["/bin/sh", "-c", "exec /app/efbundle --connection \"$MIGRATION_CONNE
 
 # Default target: the API.
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+LABEL org.opencontainers.image.source="https://github.com/jackypao103098/employee-management-system"
 WORKDIR /app
 COPY --from=build /app/publish ./
 ENV ASPNETCORE_HTTP_PORTS=8080
